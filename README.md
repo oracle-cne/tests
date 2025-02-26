@@ -1,6 +1,6 @@
 # Oracle Cloud Native Environment Integration Test Suite
 
-Integration tests for the Oracl Cloud Native Environment platform and its
+Integration tests for the Oracle Cloud Native Environment platform and its
 components live here.
 
 ## Documentation
@@ -41,7 +41,7 @@ Please consult the [security guide](./SECURITY.md) for our responsible security 
 
 ## License
 
-Copyright (c) 2025 Oracle and/or its affiliates.
+Copyright (c) 2025, Oracle and/or its affiliates.
 
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.
