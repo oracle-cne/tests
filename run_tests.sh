@@ -13,7 +13,11 @@ mkdir -p "$RESULTS"
 export GOCOVERDIR="$RESULTS"
 
 for TEST_DIR in $TESTS; do
-	export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
+	if [ -f "$TEST_DIR/defaults.yaml" ]; then
+		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
+	else
+		unset OCNE_DEFAULTS
+	fi
 	export CLUSTER_CONFIG="$TEST_DIR/clusterConfig.yaml"
 	export CAPI_RESOURCES="$TEST_DIR/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
