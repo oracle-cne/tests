@@ -1,0 +1,8 @@
+name: dualstack
+workerNodes: 3
+controlPlaneNodes: 3
+podSubnet: 10.244.0.0/16,fd02::/48
+serviceSubnet: 10.96.0.0/12,fd99::/108
+providers:
+  libvirt:
+    network: dualstack
