@@ -1,0 +1,14 @@
+<network connections='4'>
+  <name>ipv6only</name>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr2' stp='on' delay='0'/>
+  <ip family='ipv6' address="2001:db8:ca2:3::1" prefix="64" localPtr="yes">
+    <dhcp>
+      <range start='2001:db8:ca2:3::2' end='2001:db8:ca2:3::ff'/>
+    </dhcp>
+  </ip>
+</network>
