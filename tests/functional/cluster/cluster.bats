@@ -6,7 +6,7 @@
 # bats file_tags=CLUSTER, CLUSTER_CLUSTER
 
 @test "Sanity Check" {
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Verify UI Service" {

@@ -1,0 +1,3 @@
+name: 3worker
+workerNodes: 3
+serviceSubnet: 10.112.0.0/12

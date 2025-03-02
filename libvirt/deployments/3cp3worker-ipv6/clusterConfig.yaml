@@ -1,8 +1,0 @@
-name: ipv6only
-workerNodes: 3
-controlPlaneNodes: 3
-podSubnet: fd02::/48
-serviceSubnet: fd99::/108
-providers:
-  libvirt:
-    network: ipv6only

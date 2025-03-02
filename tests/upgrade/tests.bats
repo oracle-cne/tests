@@ -228,7 +228,7 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.26" {
 	doSkip 1.26
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Upgrade to 1.27" {
@@ -238,7 +238,7 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.27" {
 	doSkip 1.27
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Upgrade to 1.28" {
@@ -248,7 +248,7 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.28" {
 	doSkip 1.28
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Upgrade to 1.29" {
@@ -258,7 +258,7 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.29" {
 	doSkip 1.29
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Upgrade to 1.30" {
@@ -268,7 +268,7 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.30" {
 	doSkip 1.30
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
 
 @test "Upgrade to 1.31" {
@@ -278,5 +278,5 @@ doCapiUpgrade() {
 @test "Basic Kubernetes Tests for 1.31" {
 	doSkip 1.31
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	"$BATS_TEST_DIRNAME/basic_k8s_test.sh"
+	basic_k8s_test.sh
 }
