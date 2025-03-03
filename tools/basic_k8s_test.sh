@@ -155,6 +155,28 @@ spec:
       - effect: NoSchedule
         key: node-role.kubernetes.io/control-plane
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  default.conf: |
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -171,12 +193,20 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: ${REGISTRY}/olcne/${NGINX_IMAGE}
+        image: container-registry.oracle.com/olcne/${NGINX_IMAGE}
         ports:
         - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: config
       tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/control-plane
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: nginx-conf
+        name: config
 ---
 apiVersion: v1
 kind: Service
@@ -257,11 +287,17 @@ function run_sniff_tests {
     for node in $(kubectl get no --selector='!node-role.kubernetes.io/control-plane' --no-headers -o wide | awk '{ print $6 }'); do
         logInfo "Testing Node Port Curl ${node}:${nodePort}"
         # "${CURL[@]}" "${node}:${nodePort}"
+	if echo "$node" | grep ':'; then
+		node="[$node]"
+	fi
 	curl_test "$srcNode" "${node}:${nodePort}"
         check_exit_code $? "Checking access to cluster nodeport"
     done
 
     kubernetes_cluster_ip=$(kubectl get svc kubernetes -o jsonpath='{.spec.clusterIP}')
+    if echo "$kubernetes_cluster_ip" | grep ':'; then
+	    kubernetes_cluster_ip="[$kubernetes_cluster_ip]"
+    fi
 
     test_dns_pos=$(kubectl get po | grep testdns | awk '{ print $1 }')
     for dns_po in $test_dns_pos; do

@@ -1,0 +1,3 @@
+name: 3cp3worker
+workerNodes: 3
+controlPlaneNodes: 3

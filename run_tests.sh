@@ -12,6 +12,8 @@ RESULTS="$(pwd)/$TEST_START"
 mkdir -p "$RESULTS"
 export GOCOVERDIR="$RESULTS"
 
+export PATH="$(pwd)/tools:$PATH"
+
 for TEST_DIR in $TESTS; do
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
@@ -23,8 +25,6 @@ for TEST_DIR in $TESTS; do
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
-
-	export PATH="$(pwd)/tools:$PATH"
 
 	bats --setup-suite-file tests/setup/setup --trace --recursive tests/functional tests/upgrade
 done
