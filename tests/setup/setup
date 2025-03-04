@@ -142,7 +142,11 @@ setup_suite() {
 	export CLUSTER_NAME="$output"
 	echo Cluster name is $CLUSTER_NAME
 
-	ocne cluster start -c "$CLUSTER_CONFIG" --auto-start-ui=false
+	if [ -f "$START_SCRIPT" ]; then
+		sh "$START_SCRIPT"
+	else
+		ocne cluster start -c "$CLUSTER_CONFIG" --auto-start-ui=false
+	fi
 	run -0 ocne cluster show -C "$CLUSTER_NAME"
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
@@ -166,7 +170,11 @@ teardown_suite() {
 		export KUBECONFIG="$MGMT_KUBECONFIG"
 	fi
 
-	ocne cluster delete -c "$CLUSTER_CONFIG"
+	if [ -f "$DELETE_SCRIPT" ]; then
+		sh "$DELETE_SCRIPT"
+	else
+		ocne cluster delete -c "$CLUSTER_CONFIG"
+	fi
 
 	if [ -n "$MGMT_KUBECONFIG" ]; then
 		unset KUBECONFIG

@@ -20,6 +20,16 @@ for TEST_DIR in $TESTS; do
 	else
 		unset OCNE_DEFAULTS
 	fi
+	if [ -f "$TEST_DIR/start.sh" ]; then
+		export START_SCRIPT="$TEST_DIR/start.sh"
+	else
+		unset START_SCRIPT
+	fi
+	if [ -f "$TEST_DIR/delete.sh" ]; then
+		export DELETE_SCRIPT="$TEST_DIR/delete.sh"
+	else
+		unset DELETE_SCRIPT
+	fi
 	export CLUSTER_CONFIG="$TEST_DIR/clusterConfig.yaml"
 	export CAPI_RESOURCES="$TEST_DIR/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"

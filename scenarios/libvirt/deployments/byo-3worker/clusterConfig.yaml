@@ -1,0 +1,9 @@
+name: byo-3worker
+provider: byo
+workerNodes: 3
+virtualIp: 192.168.122.230
+providers:
+  byo:
+    networkInterface: enp1s0
+    automaticTokenCreation: true
+
