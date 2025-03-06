@@ -1,0 +1,10 @@
+name: byo-3worker-ipv6
+provider: byo
+workerNodes: 3
+virtualIp: 2001:db8:ca2:3::1:2
+podSubnet: 2001:db8:0f01::/48
+serviceSubnet: 2001:db8:0f02::/108
+providers:
+  byo:
+    networkInterface: enp1s0
+    automaticTokenCreation: true

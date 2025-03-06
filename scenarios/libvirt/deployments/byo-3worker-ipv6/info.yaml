@@ -1,0 +1,6 @@
+provider: byo
+version: 1.31
+
+
+# There is something funky going on with NetworkManager on single-stack ipv6 networks
+skip: true
