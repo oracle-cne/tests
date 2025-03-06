@@ -4,6 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 TESTDIR="$1"
+PATTERN="$2"
 
 TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
@@ -15,6 +16,10 @@ export GOCOVERDIR="$RESULTS"
 export PATH="$(pwd)/tools:$PATH"
 
 for TEST_DIR in $TESTS; do
+	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
+		echo "Skipping $TEST_DIR"
+		continue
+	fi
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
 	else

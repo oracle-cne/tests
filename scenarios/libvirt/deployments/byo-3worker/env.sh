@@ -20,7 +20,7 @@ create_domain() {
 
 	DOM_VOL="${NAME}.qcow2"
 	IGN_VOL="${POOL_PATH}/${IGN}"
-	sudo qemu-img create -f qcow2 -F qcow2 -b "$VOLUME_PATH" "${POOL_PATH}/${DOM_VOL}"
+	sudo qemu-img create -f qcow2 -F qcow2 -b "$VOLUME_PATH" "${POOL_PATH}/${DOM_VOL}" 30G
 	sudo cp "$IGN" "${IGN_VOL}"
 	sudo virsh pool-refresh "$POOL"
 
