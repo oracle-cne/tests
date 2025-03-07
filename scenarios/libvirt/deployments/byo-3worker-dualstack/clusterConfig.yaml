@@ -1,0 +1,11 @@
+name: byo-3worker-dualstack
+provider: byo
+workerNodes: 3
+virtualIp: 192.168.124.230
+podSubnet: 10.244.0.0/16,2001:db8:0f01::/48
+serviceSubnet: 10.96.0.0/12,2001:db8:0f02::/108
+providers:
+  byo:
+    networkInterface: enp1s0
+    automaticTokenCreation: true
+
