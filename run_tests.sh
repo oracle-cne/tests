@@ -20,6 +20,7 @@ for TEST_DIR in $TESTS; do
 		echo "Skipping $TEST_DIR"
 		continue
 	fi
+	echo "Running scenario $TEST_DIR"
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
 	else

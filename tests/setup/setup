@@ -29,6 +29,7 @@ setup_oci() {
 	run oci os bucket get --name "$BUCKET"
 	run grep "BucketNotFound" <(printf "$output")
 	if [ -n "$output" ]; then
+		echo oci os bucket create --compartment-id "$COMPARTMENT_ID" --name "$BUCKET"
 		oci os bucket create --compartment-id "$COMPARTMENT_ID" --name "$BUCKET"
 	fi
 
@@ -94,10 +95,11 @@ setup_capi() {
 	export UPDATE_MODE="capi"
 
 	run stat "$MGMT_CONFIG"
-	export MGMT_NAME="$CASE_NAME-mgmt"
 	if [ "$status" -eq 0 ]; then
+		export MGMT_NAME="$CASE_NAME-mgmt"
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false -c "$MGMT_CONFIG"
 	else
+		export MGMT_NAME="$CASE_NAME-mgmt"
 		# If there is no management cluser, make one
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false
 	fi
