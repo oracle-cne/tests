@@ -9,8 +9,8 @@ MAX_KUBE_VERSION="$1"
 MINOR_START=23
 MINOR_END=$(echo "$MAX_KUBE_VERSION" | cut -d. -f2)
 
-# Bump MINOR_END by 2 so that every version has three threever entry
-MINOR_END=$((MINOR_END + 2))
+# Bump MINOR_END by 3 so that every version has three threever entry
+MINOR_END=$((MINOR_END + 3))
 
 TEMPLATE="templates/test-0.1.0"
 
@@ -35,7 +35,7 @@ VERSIONS_LEN="${#VERSIONS[@]}"
 # Supporting three versions references four versions.
 # For example: ">= 1.26.0 < 1.29.0" supports 1.26, 1.27, and 1.28
 RANGE=2
-for i in $(seq $RANGE "$((VERSIONS_LEN - 1))"); do
+for i in $(seq $RANGE "$((VERSIONS_LEN - 2))"); do
 	NAME=threevers
 	VER="${VERSIONS[$i]}"
 	CHART_DIR="charts/${NAME}-${VER}"
