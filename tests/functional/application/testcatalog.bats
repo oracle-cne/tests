@@ -4,6 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # bats file_tags=CATALOG
+bats_require_minimum_version 1.5.0
 
 setup_file() {
 	ocne catalog add -u $(test-catalog-uri.sh) -N apptestcatalog
