@@ -15,6 +15,10 @@ export GOCOVERDIR="$RESULTS"
 
 export PATH="$(pwd)/tools:$PATH"
 
+export MAX_KUBE_VERSION="1.31"
+
+./tools/start-test-catalog.sh "$MAX_KUBE_VERSION"
+
 for TEST_DIR in $TESTS; do
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
 		echo "Skipping $TEST_DIR"
@@ -44,3 +48,5 @@ for TEST_DIR in $TESTS; do
 
 	bats --setup-suite-file tests/setup/setup --trace --recursive tests/functional tests/upgrade
 done
+
+./tools/stop-test-catalog.sh

@@ -1,7 +1,13 @@
 #! /bin/bash
 
-MINOR_START=26
-MINOR_END=32
+set -x
+MAX_KUBE_VERSION="$1"
+
+MINOR_START=23
+MINOR_END=$(echo "$MAX_KUBE_VERSION" | cut -d. -f2)
+
+# Bump MINOR_END by 2 so that every version has three threever entry
+MINOR_END=$((MINOR_END + 2))
 
 TEMPLATE="templates/test-0.1.0"
 
@@ -25,9 +31,8 @@ VERSIONS_LEN="${#VERSIONS[@]}"
 # Make a bunch of applications with a range of three versions
 # Supporting three versions references four versions.
 # For example: ">= 1.26.0 < 1.29.0" supports 1.26, 1.27, and 1.28
-RANGE=3
-set -x
-for i in $(seq $RANGE "$((VERSIONS_LEN - 2))"); do
+RANGE=2
+for i in $(seq $RANGE "$((VERSIONS_LEN - 1))"); do
 	NAME=threevers
 	VER="${VERSIONS[$i]}"
 	CHART_DIR="charts/${NAME}-${VER}"
@@ -43,7 +48,7 @@ done
 
 # Make a bunch of applications with single version
 RANGE=0
-for i in $(seq $RANGE "$((VERSIONS_LEN - 2))"); do
+for i in $(seq $RANGE "$((VERSIONS_LEN - 1))"); do
 	NAME=onever
 	VER="${VERSIONS[$i]}"
 	CHART_DIR="charts/${NAME}-${VER}"
