@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# Copyright (c) 2024, Oracle and/or its affiliates.
+# Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 TESTDIR="$1"
@@ -15,11 +15,16 @@ export GOCOVERDIR="$RESULTS"
 
 export PATH="$(pwd)/tools:$PATH"
 
+export MAX_KUBE_VERSION="1.31"
+
+./tools/start-test-catalog.sh "$MAX_KUBE_VERSION"
+
 for TEST_DIR in $TESTS; do
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
 		echo "Skipping $TEST_DIR"
 		continue
 	fi
+	echo "Running scenario $TEST_DIR"
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
 	else
@@ -43,3 +48,5 @@ for TEST_DIR in $TESTS; do
 
 	bats --setup-suite-file tests/setup/setup --trace --recursive tests/functional tests/upgrade
 done
+
+./tools/stop-test-catalog.sh

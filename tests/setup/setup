@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 #
-# Copyright (c) 2024, Oracle and/or its affiliates.
+# Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 export STUB_COMPARTMENT_ID="compartmentStub"
@@ -29,6 +29,7 @@ setup_oci() {
 	run oci os bucket get --name "$BUCKET"
 	run grep "BucketNotFound" <(printf "$output")
 	if [ -n "$output" ]; then
+		echo oci os bucket create --compartment-id "$COMPARTMENT_ID" --name "$BUCKET"
 		oci os bucket create --compartment-id "$COMPARTMENT_ID" --name "$BUCKET"
 	fi
 
@@ -94,10 +95,11 @@ setup_capi() {
 	export UPDATE_MODE="capi"
 
 	run stat "$MGMT_CONFIG"
-	export MGMT_NAME="$CASE_NAME-mgmt"
 	if [ "$status" -eq 0 ]; then
+		export MGMT_NAME="$CASE_NAME-mgmt"
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false -c "$MGMT_CONFIG"
 	else
+		export MGMT_NAME="$CASE_NAME-mgmt"
 		# If there is no management cluser, make one
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false
 	fi
@@ -152,6 +154,7 @@ setup_suite() {
 	export TARGET_KUBECONFIG="$KUBECONFIG"
 
 	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=600s
+	kubectl wait deployment -n ocne-system ocne-catalog --for condition=Available=True --timeout=600s
 }
 
 teardown_noncapi() {
