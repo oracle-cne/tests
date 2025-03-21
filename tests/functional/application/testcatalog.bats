@@ -93,3 +93,26 @@ EOF
 	yq -e '.data.testKey == "0.2.0"'
 	yq -e '.data.customKey == "customVal"'
 }
+
+@test "An application with CRDs can be uninstalled with resources defined" {
+	ocne application install --catalog apptestcatalog --name crd --namespace crd-defined --release crd-defined-release --version 0.1.0
+	kubectl apply -f <( cat <<EOF
+apiVersion: ocne.io/v1
+kind: TestCRD
+metadata:
+  name: testcrd
+  namespace: crd-defined
+spec:
+  val: foo
+EOF
+)
+	ocne application uninstall --namespace crd-defined --release crd-defined-release
+	kubectl get crd testcrds.ocne.io
+	kubectl get testcrd -n crd-defined testcrd
+
+	run -1 ocne application uninstall --namespace crd-defined --release crd-defined-release --uninstall-crds
+
+	kubectl delete testcrd -n crd-defined testcrd
+
+	ocne application uninstall --namespace crd-defined --release crd-defined-release --uninstall-crds
+}

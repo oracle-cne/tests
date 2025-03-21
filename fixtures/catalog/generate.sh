@@ -13,6 +13,7 @@ MINOR_END=$(echo "$MAX_KUBE_VERSION" | cut -d. -f2)
 MINOR_END=$((MINOR_END + 3))
 
 TEMPLATE="templates/test-0.1.0"
+CRDS="templates/crd-0.1.0"
 
 rm -rf repo/*
 rm -rf charts/*
@@ -79,6 +80,9 @@ for i in $(seq 0 2); do
 	mkdir -p "values/${NAME}/${VER}"
 	cp "${CHART_DIR}/values.yaml" "values/${NAME}/${VER}/values.yaml"
 done
+
+# Add a chart for CRDs
+cp -r "$CRDS" "charts/crd-0.1.0"
 
 # Package them up
 for chart in $(find ./charts -mindepth 1 -maxdepth 1 -type d); do
