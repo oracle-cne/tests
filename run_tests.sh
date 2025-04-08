@@ -46,7 +46,7 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --setup-suite-file tests/setup/setup --trace --recursive tests/functional tests/upgrade
+	bats --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
 done
 
 ./tools/stop-test-catalog.sh
