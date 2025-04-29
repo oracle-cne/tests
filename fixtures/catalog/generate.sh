@@ -5,6 +5,7 @@
 
 set -x
 MAX_KUBE_VERSION="$1"
+USE_PODMAN="$2"
 
 MINOR_START=23
 MINOR_END=$(echo "$MAX_KUBE_VERSION" | cut -d. -f2)
@@ -89,4 +90,6 @@ pushd repo
 helm repo index .
 popd #repo
 
-podman build -t ocne/testcatalog:latest  .
+if [ "$USE_PODMAN" = "true" ]; then
+	podman build -t ocne/testcatalog:latest  .
+fi

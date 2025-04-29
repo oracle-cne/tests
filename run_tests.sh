@@ -3,21 +3,33 @@
 # Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-TESTDIR="$1"
-PATTERN="$2"
+TESTDIR=./scenarios/sanity
+PATTERN=
+FORMAT=tap
+RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"
+USE_PODMAN=true
+while true; do
+	case "$1" in
+	"") break;;
+	-d | --dir ) TESTDIR="$2"; shift; shift ;;
+	-p | --pattern ) PATTERN="$2"; shift; shift ;;
+	-F | --format ) FORMAT="$2"; shift; shift ;;
+	-r | --results ) RESULTS="$2"; shift; shift ;;
+	-n | --no-podman ) USE_PODMAN="$2"; shift; shift ;;
+	*) echo "$1 is not a valid parameter"; exit 1 ;;
+	esac
+done
 
 TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
-TEST_START=$(date +"%Y-%m-%d-%H:%m")
-RESULTS="$(pwd)/$TEST_START"
 mkdir -p "$RESULTS"
-export GOCOVERDIR="$RESULTS"
+export GOCOVERDIR="$RESULTS/coverage"
 
 export PATH="$(pwd)/tools:$PATH"
 
 export MAX_KUBE_VERSION="1.31"
 
-./tools/start-test-catalog.sh "$MAX_KUBE_VERSION"
+./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
 for TEST_DIR in $TESTS; do
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
@@ -46,7 +58,7 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
 done
 
-./tools/stop-test-catalog.sh
+./tools/stop-test-catalog.sh "$USE_PODMAN"
