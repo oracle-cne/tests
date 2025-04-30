@@ -38,6 +38,7 @@ esac
 
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
+
 for TEST_DIR in $TESTS; do
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
 		echo "Skipping $TEST_DIR"
@@ -65,7 +66,9 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
+	set -x
 	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	set +x
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
