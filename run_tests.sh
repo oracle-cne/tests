@@ -8,6 +8,7 @@ PATTERN=
 FORMAT=tap
 RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"
 USE_PODMAN=true
+SUFFIX=tap
 while true; do
 	case "$1" in
 	"") break;;
@@ -28,6 +29,12 @@ export GOCOVERDIR="$RESULTS/coverage"
 export PATH="$(pwd)/tools:$PATH"
 
 export MAX_KUBE_VERSION="1.31"
+
+case "$FORMAT" in
+	junit ) SUFFIX=xml;;
+	tap* ) SUFFIX=tap;;
+	* ) SUFFIX=out;;
+esac
 
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
@@ -58,7 +65,7 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
