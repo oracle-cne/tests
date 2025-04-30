@@ -13,6 +13,6 @@ if [ "$USE_PODMAN" = "true" ]; then
 	podman run -d --name ocnetestcatalog --rm -p 8080:80 ocne/testcatalog:latest
 else
 	pushd fixtures/catalog
-	nginx -p `pwd` -c ./nginx-local.conf -e /dev/null
+	nginx -p `pwd` -c ./nginx-local.conf
 	popd # fixtures/catalog
 fi
