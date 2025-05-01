@@ -25,7 +25,7 @@ TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
 export GOCOVERDIR="$RESULTS/coverage_raw"
 export MERGED_COVERAGE_DIR="$RESULTS/coverage_merged"
-export COVERAGE="$RESULTS/coverage""
+export COVERAGE="$RESULTS/coverage"
 mkdir -p "$RESULTS"
 mkdir -p "$GOCOVERDIR"
 mkdir -p "$MERGED_COVERAGE_DIR"
