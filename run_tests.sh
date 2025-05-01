@@ -72,8 +72,8 @@ for TEST_DIR in $TESTS; do
 	export CASE_NAME=$(basename "$TEST_DIR")
 
 	set -x
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
-	#bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	#bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
 	set +x
 done
 
