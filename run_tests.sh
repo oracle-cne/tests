@@ -25,6 +25,7 @@ TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
 mkdir -p "$RESULTS"
 export GOCOVERDIR="$RESULTS/coverage"
+mkdir -p "$GOCOVERDIR"
 
 export PATH="$(pwd)/tools:$PATH"
 
