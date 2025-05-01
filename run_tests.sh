@@ -23,9 +23,13 @@ done
 
 TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
+export GOCOVERDIR="$RESULTS/coverage_raw"
+export MERGED_COVERAGE_DIR="$RESULTS/coverage_merged"
+export COVERAGE="$RESULTS/converage"
 mkdir -p "$RESULTS"
-export GOCOVERDIR="$RESULTS/coverage"
 mkdir -p "$GOCOVERDIR"
+mkdir -p "$MERGED_COVERAGE_DIR"
+
 
 export PATH="$(pwd)/tools:$PATH"
 
@@ -74,3 +78,6 @@ for TEST_DIR in $TESTS; do
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
+
+go tool covdata merge -i="$GOCOVERDIR" -o="$MERGED_COVERAGE_DIR"
+go tool covdata textfmt -i="$MERGED_COVERAGE_DIR" -o="$COVERAGE"
