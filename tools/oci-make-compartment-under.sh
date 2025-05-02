@@ -8,6 +8,7 @@ CHILD="$2"
 DESC="$3"
 
 set -e
+set -x
 
 [ -n "$PARENT" ]
 [ -n "$CHILD" ]
