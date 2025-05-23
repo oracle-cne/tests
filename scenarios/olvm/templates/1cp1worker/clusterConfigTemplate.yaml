@@ -1,0 +1,59 @@
+name: $CLUSTER_NAME
+workerNodes: 1
+controlPlaneNodes: 1
+virtualIp: $OLVM_VIRTUAL_IP
+provider: olvm
+providers:
+  olvm:
+    namespace: $CLUSTER_NAMESPACE
+    olvmDatacenterName: $OLVM_DATACENTER_NAME
+    olvmOvirtAPIServer:
+      serverURL: $OLVM_SERVER_URL
+      serverCAPath: $OLVM_CA_CERT_PATH
+      credentialsSecret:
+        name: $CLUSTER_NAME-creds
+        namespace: $CLUSTER_NAMESPACE
+      caConfigMap:
+        name: $CLUSTER_NAME-ca
+        namespace: $CLUSTER_NAMESPACE
+      insecureSkipTLSVerify: false
+    olvmOCK:
+      storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
+      diskName: $OCNE_OCK_DISK_NAME
+      diskSize: 32GB
+    controlPlaneMachine:
+      olvmOvirtClusterName: Default
+      vmTemplateName: $OLVM_VM_TEMPLATE_NAME
+      olvmNetwork:
+        networkName: $OLVM_NETWORK_NAME
+        vnicName: nic-1
+        vnicProfileName: $OLVM_NETWORK_NAME
+      virtualMachine:
+        memory: "7GB"
+        network:
+          gateway: $OLVM_GATEWAY_IP
+          interface: enp1s0
+          interfaceType: virtio
+          ipv4:
+            subnet: $OLVM_SUBNET_BASE/24
+            ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_CP-$OLVM_ENDING_IPV4_ADDRESS_CP
+          networkName: $OLVM_NETWORK_NAME
+    workerMachine:
+      olvmOvirtClusterName: Default
+      vmTemplateName: $OLVM_VM_TEMPLATE_NAME
+      olvmNetwork:
+        networkName: $OLVM_NETWORK_NAME
+        vnicName: nic-1
+        vnicProfileName: $OLVM_NETWORK_NAME
+      virtualMachine:
+        memory: "16GB"
+        network:
+          gateway: $OLVM_GATEWAY_IP
+          interface: enp1s0
+          interfaceType: virtio
+          ipv4:
+            subnet: $OLVM_SUBNET_BASE/24
+            ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_W-$OLVM_ENDING_IPV4_ADDRESS_W
+          networkName: $OLVM_NETWORK_NAME
+    ovirtCsiDriver:
+      install: true
