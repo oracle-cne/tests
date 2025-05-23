@@ -5,10 +5,10 @@ components live here.
 
 ## Documentation
 
-These test require at least BATS 1.10
+These tests require at least BATS 1.10
 
-The structure of this suite is to run a common set of tests aginst a set of
-cluster configuration.  Every test in this suite is run against each
+The structure of this suite is to run a common set of tests against a set of
+cluster configurations.  Every test in this suite is run against each
 configuration, for a total of (tests * configurations) assertions.
 
 To run some tests, at least one test configuration is required.  Each test
@@ -28,7 +28,7 @@ Tests can be run like so:
 
 `./run_tests.sh <tests-directory>`
 
-The test runner also accept a regular expression to select a subset of tests
+The test runner also accepts a regular expression to select a subset of tests
 
 
 `./run_tests.sh <tests-directory> <selection-regex>`
@@ -66,6 +66,24 @@ $ ./run_tests.sh ./scenarios/libvirt
 # or just enjoy being tidy.
 $ ./scenarios/libvirt/environment/unsetup.sh
 ```
+
+To run the OLVM tests:
+
+```
+# If this is the first time, run the environment setup
+# script.  This script generates uses the template files
+# to generate the cluster config files.
+$ ./scenarios/olvm/environment/setup.sh
+
+$ ./run_tests.sh ./scenarios/olvm
+
+# To remove the test infrastructure, run the following
+# script.  This is not essential, and should only be done
+# if you no longer intend to use the system for testing
+# or just enjoy being tidy.
+$ ./scenarios/olvm/environment/unsetup.sh
+```
+
 
 ## Contributing
 
