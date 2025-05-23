@@ -28,7 +28,55 @@ if [ -z "$OLVM_GATEWAY_IP" ]; then
 	exit 1
 fi
 
+if [ -z "$OLVM_STARTING_IPV4_ADDRESS_CP" ]; then
+	echo OLVM_STARTING_IPV4_ADDRESS_CP is not defined
+	exit 1
+fi
 
+if [ -z "$OLVM_ENDING_IPV4_ADDRESS_CP" ]; then
+	echo OLVM_ENDING_IPV4_ADDRESS_CP is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_STARTING_IPV4_ADDRESS_W" ]; then
+	echo OLVM_STARTING_IPV4_ADDRESS_W is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_ENDING_IPV4_ADDRESS_W" ]; then
+	echo OLVM_ENDING_IPV4_ADDRESS_W is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_DATACENTER_NAME" ]; then
+  export OLVM_DATACENTER_NAME=default
+	echo Defaulting OLVM_DATACENTER_NAME to "default"
+fi
+
+if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
+	echo OLVM_STORAGE_DOMAIN_NAME is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_NETWORK_NAME" ]; then
+  export OLVM_NETWORK_NAME=vlan
+	echo Defaulting OLVM_NETWORK_NAME to "vlan"
+fi
+
+if [ -z "$OLVM_CA_CERT_PATH" ]; then
+	echo OLVM_CA_CERT_PATH is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_VM_TEMPLATE_NAME" ]; then
+	echo OLVM_VM_TEMPLATE_NAME is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_VM_TEMPLATE_NAME" ]; then
+	echo OLVM_VM_TEMPLATE_NAME is not defined
+	exit 1
+fi
 
 # Generate the OLVM configuration files
 TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)
