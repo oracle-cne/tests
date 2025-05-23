@@ -84,5 +84,5 @@ TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)
 for TEMPLATE in $TEMPLATES; do
   CONFIG_FILE=${TEMPLATE/%clusterConfigTemplate.yaml}clusterConfig.yaml
   echo "Generating $CONFIG_FILE"
-  envsubst < $TEMPLATE > $CONFIG_FILE
+  envsubst < "$TEMPLATE" > "$CONFIG_FILE"
 done
