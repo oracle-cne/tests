@@ -73,7 +73,7 @@ setup_oci() {
 }
 
 setup_olvm() {
-
+  ocne cluster start --config "$CLUSTER_CONFIG"
 }
 
 teardown_oci() {

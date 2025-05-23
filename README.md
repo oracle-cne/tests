@@ -75,7 +75,7 @@ To run the OLVM tests:
 # to generate the cluster config files.
 $ ./scenarios/olvm/environment/setup.sh
 
-$ ./run_tests.sh --dir ./scenarios/olvm
+$ ./run_tests.sh --dir ./scenarios/olvm/deployments
 
 # To remove the test infrastructure, run the following
 # script.  This is not essential, and should only be done
