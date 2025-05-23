@@ -95,7 +95,7 @@ teardown_oci() {
 }
 
 teardown_olvm() {
-
+  ocne cluster delete --config "$CLUSTER_CONFIG"
 }
 
 
