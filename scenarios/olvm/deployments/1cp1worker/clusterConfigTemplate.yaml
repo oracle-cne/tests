@@ -53,3 +53,14 @@ providers:
           networkName: $OLVM_NETWORK_NAME
     ovirtCsiDriver:
       install: true
+extraIgnitionInline: |
+  variant: fcos
+  version: 1.5.0
+  storage:
+    files:
+    - path: /etc/resolv.conf
+      mode: 0644
+      overwrite: false
+      contents:
+        inline: |
+          nameserver 100.101.71.250
