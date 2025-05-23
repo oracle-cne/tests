@@ -1,4 +1,4 @@
-name: $CLUSTER_NAME
+name: 1cp1worker
 workerNodes: 1
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
@@ -11,16 +11,12 @@ providers:
       serverURL: $OLVM_SERVER_URL
       serverCAPath: $OLVM_CA_CERT_PATH
       credentialsSecret:
-        name: $CLUSTER_NAME-creds
+        name: 1cp1worker-creds
         namespace: $CLUSTER_NAMESPACE
       caConfigMap:
-        name: $CLUSTER_NAME-ca
+        name: 1cp1worker-ca
         namespace: $CLUSTER_NAMESPACE
       insecureSkipTLSVerify: false
-    olvmOCK:
-      storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
-      diskName: $OCNE_OCK_DISK_NAME
-      diskSize: 32GB
     controlPlaneMachine:
       olvmOvirtClusterName: Default
       vmTemplateName: $OLVM_VM_TEMPLATE_NAME
