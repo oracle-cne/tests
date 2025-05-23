@@ -72,6 +72,10 @@ setup_oci() {
 	fi
 }
 
+setup_olvm() {
+  echo "Setup OLVM"
+}
+
 teardown_oci() {
 	if [ -n "X86_IMAGE" ]; then
 			sed -i -e "s/${X86_IMAGE}/${X86_IMAGE_ORIG}/g" "$CAPI_RESOURCES"
@@ -90,6 +94,10 @@ teardown_oci() {
 	fi
 }
 
+teardown_olvm() {
+  echo "Teardown OLVM"
+}
+
 
 setup_capi() {
 	export UPDATE_MODE="capi"
@@ -100,7 +108,7 @@ setup_capi() {
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false -c "$MGMT_CONFIG"
 	else
 		export MGMT_NAME="$CASE_NAME-mgmt"
-		# If there is no management cluser, make one
+		# If there is no management cluster, make one
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false
 	fi
 
@@ -114,6 +122,7 @@ setup_capi() {
 	if [ "$output" != "false" ]; then
 		case "$PROVIDER" in
 		oci ) setup_oci ;;
+    olvm ) setup_olvm ;;
 		*) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
@@ -189,6 +198,7 @@ teardown_suite() {
 		case "$PROVIDER" in
 		libvirt | byo ) teardown_noncapi ;;
 		oci ) teardown_oci ;;
+    olvm ) teardown_olvm ;;
 		* ) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
