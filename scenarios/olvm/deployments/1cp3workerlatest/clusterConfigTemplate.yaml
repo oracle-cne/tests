@@ -1,4 +1,4 @@
-name: 1cp3worker
+name: 1cp3workerlatest
 workerNodes: 3
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
@@ -11,10 +11,10 @@ providers:
       serverURL: $OLVM_SERVER_URL
       serverCAPath: $OLVM_CA_CERT_PATH
       credentialsSecret:
-        name: 1cp3worker-creds
+        name: 1cp3workerlatestlatest-creds
         namespace: $CLUSTER_NAMESPACE
       caConfigMap:
-        name: 1cp3worker-ca
+        name: 1cp3workerlatest-ca
         namespace: $CLUSTER_NAMESPACE
       insecureSkipTLSVerify: false
     controlPlaneMachine:
