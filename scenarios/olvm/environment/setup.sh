@@ -18,8 +18,8 @@ if [ -z "$OLVM_VIRTUAL_IP" ]; then
 	exit 1
 fi
 
-if [ -z "$OLVM_SUBNET_BASE" ]; then
-	echo OLVM_SUBNET_BASE is not defined
+if [ -z "$OLVM_SUBNET" ]; then
+	echo OLVM_SUBNET is not defined
 	exit 1
 fi
 

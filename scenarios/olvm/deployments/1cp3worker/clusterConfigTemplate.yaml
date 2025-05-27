@@ -31,7 +31,7 @@ providers:
           interface: $OLVM_NETWORK_INTERFACE
           interfaceType: $OLVM_NETWORK_INTERFACE_TYPE
           ipv4:
-            subnet: $OLVM_SUBNET_BASE/24
+            subnet: $OLVM_SUBNET/24
             ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_CP-$OLVM_ENDING_IPV4_ADDRESS_CP
           networkName: $OLVM_NETWORK_NAME
     workerMachine:
@@ -48,7 +48,7 @@ providers:
           interface: $OLVM_NETWORK_INTERFACE
           interfaceType: $OLVM_NETWORK_INTERFACE_TYPE
           ipv4:
-            subnet: $OLVM_SUBNET_BASE/24
+            subnet: $OLVM_SUBNET/24
             ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_W-$OLVM_ENDING_IPV4_ADDRESS_W
           networkName: $OLVM_NETWORK_NAME
     ovirtCsiDriver:
