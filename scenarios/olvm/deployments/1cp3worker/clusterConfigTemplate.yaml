@@ -1,5 +1,5 @@
 name: 1cp3worker
-workerNodes: 1
+workerNodes: 3
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
 provider: olvm
