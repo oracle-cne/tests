@@ -140,18 +140,19 @@ doNodeUpgrade() {
 doCapiUpgrade() {
 	TGT="$1"
 
-	export KUBECONFIG="$MGMT_KUBECONFIG"
+    export KUBECONFIG="$MGMT_KUBECONFIG"
     case "$PROVIDER" in
     oci ) stageOci "$TGT" ;;
     olvm ) stageOlvm "$TGT" ;;
     esac
 
 	# get patches
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9]* kubeadmcontrolplane *'
+	echo "$STAGE_OUT"
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
 	cpPatch="$output"
 	echo "$cpPatch"
 
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9]* machinedeployment *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
 	workerPatches="$output"
 	echo "$workerPatches"
 
@@ -232,7 +233,6 @@ stageOci() {
 
     run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
 	export STAGE_OUT="$output"
-	echo "$STAGE_OUT"
 }
 
 stageOlvm() {
@@ -247,7 +247,6 @@ stageOlvm() {
 
     run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = "$TEMPLATE", .providers.olvm.workerMachine.vmTemplateName = "$TEMPLATE"' < "$CLUSTER_CONFIG")
 	export STAGE_OUT="$output"
-	echo "$STAGE_OUT"
 }
 
 @test "Basic Kubernetes Tests for 1.26" {

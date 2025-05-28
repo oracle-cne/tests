@@ -52,7 +52,7 @@ providers:
             ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_W-$OLVM_ENDING_IPV4_ADDRESS_W
           networkName: $OLVM_NETWORK_NAME
     ovirtCsiDriver:
-      install: true
+      install: false
 extraIgnitionInline: |
   variant: fcos
   version: 1.5.0
