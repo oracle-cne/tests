@@ -11,10 +11,11 @@ bats_require_minimum_version 1.5.0
 
 setup_oci() {
 	run -0 yq -e .compartment "$INFO"
+	export CAPI_RESOURCES="$TEST_DIR/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export PARENT="$output"
 	export CHILD="$CASE_NAME"
-	echo Parent compartment is $PARENT
-	echo New compartment is $CHILD
+	echo Parent compartment is "$PARENT"
+	echo New compartment is "$CHILD"
 
 	run -0 yq -e .providers.oci.bucketName "$CLUSTER_CONFIG"
 	export BUCKET="$output"
@@ -22,7 +23,7 @@ setup_oci() {
 
 	run -0 oci-make-compartment-under.sh "$PARENT" "$CHILD" "Cluster API Tests"
 	export COMPARTMENT_ID=$(printf "$output" | tail -1)
-	echo Compartment ID is $COMPARTMENT_ID
+	echo Compartment ID is "$COMPARTMENT_ID"
 
 	sed -i -e "s/${STUB_COMPARTMENT_ID}/${COMPARTMENT_ID}/g" "$CAPI_RESOURCES"
 
@@ -74,6 +75,8 @@ setup_oci() {
 
 setup_olvm() {
   echo "Setup OLVM"
+  export CAPI_RESOURCES="$TEST_DIR/olvm-template.yaml)"
+  ocne cluster template --config-file "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 
 teardown_oci() {
