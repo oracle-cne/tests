@@ -142,12 +142,9 @@ doCapiUpgrade() {
 
 	export KUBECONFIG="$MGMT_KUBECONFIG"
     case "$PROVIDER" in
-    oci ) run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG" ;;
-    olvm ) run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = "$OLVM_VM_TEMPLATE_1_31", .providers.olvm.workerMachine.vmTemplateName = "$OLVM_VM_TEMPLATE_1_31"' < "$CLUSTER_CONFIG") ;;
+    oci ) stageOci "$TGT" ;;
+    olvm ) stageOlvm "$TGT" ;;
     esac
-
-	STAGE_OUT="$output"
-	echo "$STAGE_OUT"
 
 	# get patches
 	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9]* kubeadmcontrolplane *'
@@ -227,6 +224,30 @@ doCapiUpgrade() {
 	done
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 	false
+}
+
+stageOci() {
+	TGT="$1"
+	export KUBECONFIG="$MGMT_KUBECONFIG"
+
+    run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
+	export STAGE_OUT="$output"
+	echo "$STAGE_OUT"
+}
+
+stageOlvm() {
+	TGT="$1"
+	export KUBECONFIG="$MGMT_KUBECONFIG"
+
+	case "$TGT" in
+	1.30 ) TEMPLATE="$$OLVM_VM_TEMPLATE_1_30" ;;
+	1.31 ) TEMPLATE="$$OLVM_VM_TEMPLATE_1_31" ;;
+    *) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
+	esac
+
+    run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = "$TEMPLATE", .providers.olvm.workerMachine.vmTemplateName = "$TEMPLATE"' < "$CLUSTER_CONFIG") ;;
+	export STAGE_OUT="$output"
+	echo "$STAGE_OUT"
 }
 
 @test "Basic Kubernetes Tests for 1.26" {
