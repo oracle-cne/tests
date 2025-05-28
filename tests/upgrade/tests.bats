@@ -141,7 +141,11 @@ doCapiUpgrade() {
 	TGT="$1"
 
 	export KUBECONFIG="$MGMT_KUBECONFIG"
-	run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
+    case "$PROVIDER" in
+    oci ) run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG" ;;
+    olvm ) run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = "$OLVM_VM_TEMPLATE_1_31", .providers.olvm.workerMachine.vmTemplateName = "$OLVM_VM_TEMPLATE_1_31"' < "$CLUSTER_CONFIG") ;;
+    esac
+
 	STAGE_OUT="$output"
 	echo "$STAGE_OUT"
 
