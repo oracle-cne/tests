@@ -1,4 +1,5 @@
 name: 1cp3worker
+kubernetesVersion: 1.30
 workerNodes: 3
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
