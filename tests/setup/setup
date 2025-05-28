@@ -11,7 +11,7 @@ bats_require_minimum_version 1.5.0
 
 setup_oci() {
 	run -0 yq -e .compartment "$INFO"
-	export CAPI_RESOURCES="$TEST_DIR/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
+	export CAPI_RESOURCES="$TEST_DIR_CURRENT/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export PARENT="$output"
 	export CHILD="$CASE_NAME"
 	echo Parent compartment is "$PARENT"
@@ -75,7 +75,7 @@ setup_oci() {
 
 setup_olvm() {
   echo "Setup OLVM"
-  export CAPI_RESOURCES="$TEST_DIR/olvm-template.yaml)"
+  export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml)"
   ocne cluster template --config-file "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 

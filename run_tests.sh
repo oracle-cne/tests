@@ -52,6 +52,7 @@ for TEST_DIR in $TESTS; do
 	else
 		unset DELETE_SCRIPT
 	fi
+	export TEST_DIR_CURRENT="$TEST_DIR"
 	export CLUSTER_CONFIG="$TEST_DIR/clusterConfig.yaml"
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
 	export INFO="$TEST_DIR/info.yaml"
