@@ -21,6 +21,7 @@ waitFor() {
 	sleep 30
 
 	# Wait for version
+	echo "Wait for $KIND named $NAME in namespace $NAMESPACE"
 	for i in $(seq 1 100); do
 		run -0 kubectl -n "$NAMESPACE" get "$KIND" "$NAME" -o yaml
 		YAML="$output"
@@ -240,8 +241,8 @@ stageOlvm() {
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 
 	case "$TGT" in
-	1.30 ) TEMPLATE="$$OLVM_VM_TEMPLATE_1_30" ;;
-	1.31 ) TEMPLATE="$$OLVM_VM_TEMPLATE_1_31" ;;
+	1.30 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_30" ;;
+	1.31 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_31" ;;
     *) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
 	esac
 
