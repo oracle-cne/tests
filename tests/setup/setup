@@ -76,7 +76,7 @@ setup_oci() {
 setup_olvm() {
   echo "Setup OLVM"
   export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
-  ocne cluster template --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
+  ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 
 teardown_oci() {
