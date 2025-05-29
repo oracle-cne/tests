@@ -5,17 +5,17 @@ virtualIp: $OLVM_VIRTUAL_IP
 provider: olvm
 providers:
   olvm:
-    namespace: $CLUSTER_NAMESPACE
+    namespace: olvm-cluster
     olvmDatacenterName: $OLVM_DATACENTER_NAME
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL
       serverCAPath: $OLVM_CA_CERT_PATH
       credentialsSecret:
         name: 1cp3workerlatestlatest-creds
-        namespace: $CLUSTER_NAMESPACE
+        namespace: olvm-cluster
       caConfigMap:
         name: 1cp3workerlatest-ca
-        namespace: $CLUSTER_NAMESPACE
+        namespace: olvm-cluster
       insecureSkipTLSVerify: false
     controlPlaneMachine:
       olvmOvirtClusterName: Default
