@@ -247,7 +247,7 @@ stageOlvm() {
 	esac
 
     echo "Update OLVM to use template $TEMPLATE"
-    run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = "$TEMPLATE", .providers.olvm.workerMachine.vmTemplateName = "$TEMPLATE"' < "$CLUSTER_CONFIG")
+    run -0 ocne cluster stage --version "$TGT" -c <(yq '.providers.olvm.controlPlaneMachine.vmTemplateName = $TEMPLATE, .providers.olvm.workerMachine.vmTemplateName = $TEMPLATE' < "$CLUSTER_CONFIG")
 	export STAGE_OUT="$output"
 }
 
