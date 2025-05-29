@@ -19,7 +19,7 @@ setup_oci() {
 
 	run -0 yq -e .providers.oci.bucketName "$CLUSTER_CONFIG"
 	export BUCKET="$output"
-	echo Bucket is $BUCKET
+	echo Bucket is "$BUCKET"
 
 	run -0 oci-make-compartment-under.sh "$PARENT" "$CHILD" "Cluster API Tests"
 	export COMPARTMENT_ID=$(printf "$output" | tail -1)
@@ -48,7 +48,7 @@ setup_oci() {
 			echo "$output"
 			run -0 grep --only-matching -e 'ocid1.image.[a-zA-Z0-9.]*' <(echo "$output")
 			export X86_IMAGE="$output"
-			echo amd64 image id is $X86_IMAGE
+			echo amd64 image id is "$X86_IMAGE"
 			echo sed -i -e "s/${X86_IMAGE_ORIG}/${X86_IMAGE}/g" "$CAPI_RESOURCES"
 			sed -i -e "s/${X86_IMAGE_ORIG}/${X86_IMAGE}/g" "$CAPI_RESOURCES"
 		fi
@@ -75,7 +75,7 @@ setup_oci() {
 
 setup_olvm() {
   echo "Setup OLVM"
-  export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml
+  export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
   ocne cluster template --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 
@@ -154,7 +154,7 @@ setup_suite() {
 
 	run -0 yq -e .name "$CLUSTER_CONFIG"
 	export CLUSTER_NAME="$output"
-	echo Cluster name is $CLUSTER_NAME
+	echo Cluster name is "$CLUSTER_NAME"
 
 	if [ -f "$START_SCRIPT" ]; then
 		sh "$START_SCRIPT"
