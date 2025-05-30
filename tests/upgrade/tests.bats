@@ -39,7 +39,7 @@ waitFor() {
 			return 0
 		fi
 
-		sleep 10
+		sleep 12
 	done
 
 	false
