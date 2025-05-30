@@ -1,8 +1,7 @@
-name: 1cp3worker-mgmt
+name: 1cp3workerlatest-mgmt
 provider: libvirt
 headless: true
 controlPlaneNodes: 1
-kubernetesVersion: 1.30
 providers:
   libvirt:
     controlPlaneNode:

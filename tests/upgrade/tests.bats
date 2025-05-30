@@ -21,6 +21,7 @@ waitFor() {
 	sleep 30
 
 	# Wait for version
+	echo "Wait for $KIND named $NAME in namespace $NAMESPACE"
 	for i in $(seq 1 100); do
 		run -0 kubectl -n "$NAMESPACE" get "$KIND" "$NAME" -o yaml
 		YAML="$output"
@@ -38,7 +39,7 @@ waitFor() {
 			return 0
 		fi
 
-		sleep 10
+		sleep 12
 	done
 
 	false
@@ -140,17 +141,19 @@ doNodeUpgrade() {
 doCapiUpgrade() {
 	TGT="$1"
 
-	export KUBECONFIG="$MGMT_KUBECONFIG"
-	run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
-	STAGE_OUT="$output"
-	echo "$STAGE_OUT"
+    export KUBECONFIG="$MGMT_KUBECONFIG"
+    case "$PROVIDER" in
+    oci ) stageOci "$TGT" ;;
+    olvm ) stageOlvm "$TGT" ;;
+    esac
 
 	# get patches
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9]* kubeadmcontrolplane *'
+	echo "$STAGE_OUT"
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
 	cpPatch="$output"
 	echo "$cpPatch"
 
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9]* machinedeployment *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
 	workerPatches="$output"
 	echo "$workerPatches"
 
@@ -223,6 +226,32 @@ doCapiUpgrade() {
 	done
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 	false
+}
+
+stageOci() {
+	TGT="$1"
+	export KUBECONFIG="$MGMT_KUBECONFIG"
+
+    run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
+	export STAGE_OUT="$output"
+}
+
+stageOlvm() {
+	TGT="$1"
+	export KUBECONFIG="$MGMT_KUBECONFIG"
+
+	case "$TGT" in
+	1.30 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_30" ;;
+	1.31 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_31" ;;
+    *) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
+	esac
+
+    echo "Update OLVM to use template $TEMPLATE"
+    yq ".providers.olvm.controlPlaneMachine.vmTemplateName = \"${TEMPLATE}\", .providers.olvm.workerMachine.vmTemplateName = \"${TEMPLATE}\"" < "$CLUSTER_CONFIG" > "$CLUSTER_CONFIG"-stage
+    run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"-stage
+	export STAGE_OUT="$output"
+	echo "Updated config for the OLVM cluster"
+	ocne cluster show -C $(yq -e .name $CLUSTER_CONFIG) -f "config.providers.olvm"
 }
 
 @test "Basic Kubernetes Tests for 1.26" {
