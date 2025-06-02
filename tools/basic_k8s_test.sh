@@ -1,6 +1,6 @@
 #!/bin/bash -x
 #
-# Copyright (c) 2019-2021 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2019, 2025, Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 # Allow for this script to be ran from anywhere
@@ -38,12 +38,12 @@ function isFuncDeclared() {
     echo $?;
 };
 
-# Calls log function if delcared, otherwise calls echo.
+# Calls log function if declared, otherwise calls echo.
 function logInfo() {
     if [ $(isFuncDeclared log) -eq 0 ]; then
-        log $1;
+        log "$1";
     else
-        echo $1;
+        echo "$1";
     fi;
 };
 
@@ -81,21 +81,21 @@ function isinstalled() {
 '
 function get_package_version()
 {
-    version=$(rpm -q $1 | awk -F'-' '{print $2}' | awk -F'.' '{b=$1"."$2;print b}')
-    logInfo $version
+    version=$(rpm -q "$1" | awk -F'-' '{print $2}' | awk -F'.' '{b=$1"."$2;print b}')
+    logInfo "$version"
 };
 
 
 function do_exit() {
     logInfo "$1"
-    exit $2
+    exit "$2"
 };
 
 : '
     check the exit code and exit with proper message if code is not zero
 '
 function check_exit_code() {
-    if [ $1 -ne 0 ]; then
+    if [ "$1" -ne 0 ]; then
         do_exit "$2 failed" 1
     fi
 };
@@ -127,10 +127,10 @@ function validate_golang() {
 };
 
 function createTestResources() {
-    if [ -f ${SOURCE_DIR}/nginx.yaml ]; then
+    if [ -f "${SOURCE_DIR}"/nginx.yaml ]; then
         # This section is used by Jenkins Pipeline e2e
         logInfo "File exists: ${SOURCE_DIR}/nginx.yaml"
-        kubectl apply -f ${SOURCE_DIR}/nginx.yaml
+        kubectl apply -f "${SOURCE_DIR}"/nginx.yaml
         kubectl get nodes,pod,svc,namespaces -A -o wide
     else
         kubectl apply -f - <<EOF
@@ -230,7 +230,7 @@ EOF
     kubectl get po -o wide
 }
 
-# Adds a retry around waitng for the pods since sometimes the api server resource doesn't exist
+# Adds a retry around waiting for the pods since sometimes the api server resource doesn't exist
 function waitForPod {
     action=$1
     labelSelector=$2
@@ -302,11 +302,11 @@ function run_sniff_tests {
     test_dns_pos=$(kubectl get po | grep testdns | awk '{ print $1 }')
     for dns_po in $test_dns_pos; do
         logInfo "Test accessing cluster dns in a pod on every host"
-        kubectl exec -i ${dns_po} -- "${CURL[@]}" nginx.default.svc.cluster.local
+        kubectl exec -i "${dns_po}" -- "${CURL[@]}" nginx.default.svc.cluster.local
         check_exit_code $? "testing cluster dns $dns_po"
 
         logInfo "Test accessing kubernetes api cluster ip in a pod on every host"
-        kubectl exec -i ${dns_po} -- "${CURL[@]}" --insecure "https://${kubernetes_cluster_ip}:443/healthz"
+        kubectl exec -i "${dns_po}" -- "${CURL[@]}" --insecure "https://${kubernetes_cluster_ip}:443/healthz"
         check_exit_code $? "testing kubernetes api cluster ip $dns_po"
     done
 
@@ -335,21 +335,22 @@ function run_conformance_tests {
 
     kubernetesVersion=$(kubectl version --short | grep Server | cut -d':' -f2  | cut -d'+' -f1 | cut -d'.' -f1-2 | awk '{ print $1 }')
     # wait 2 hours for tests to finish
-    sonobuoy run --wait=7200 --kube-conformance-image-version=${kubernetesVersion}
+    sonobuoy run --wait=7200 --kube-conformance-image-version="${kubernetesVersion}"
     return_code=$?
     results=$(sonobuoy retrieve)
-    if [ $return_code -eq 0 ] && [ $results == "" ]; then
+    if [ $return_code -eq 0 ] && [ "$results" == "" ]; then
          logInfo "[ERROR] Conformance tests failed with no result file. Please check your configuration"
          exit 1
     fi
-    sonobuoy e2e $results | grep "failed tests: 0"
+    sonobuoy e2e "$results" | grep "failed tests: 0"
     if [ $? -ne 0 ]; then
         logInfo "[ERROR] Conformance tests failed"
+        # shellcheck disable=SC2086
         sonobuoy e2e $results --show failed
         exit 1
     else
         resultsDir="results-k8s-$kubernetesVersion-$(date "+%F-%T")"
-        mkdir -p ./$resultsDir; tar xzf $results -C ./$resultsDir
+        mkdir -p ./"$resultsDir"; tar xzf "$results" -C ./"$resultsDir"
         # https://github.com/cncf/k8s-conformance/blob/master/instructions.md
         logInfo "for conformance logs see directory: $resultsDir"
         logInfo "[SUCCESS] Conformance tests passed"
@@ -357,7 +358,7 @@ function run_conformance_tests {
 };
 
 function print_help() {
-    logInfo "Rune this script with either no arguemnt or optional argument -s to enable snobouy test"
+    logInfo "Rune this script with either no argument or optional argument -s to enable snobouy test"
     exit 0
 };
 
@@ -384,6 +385,10 @@ function validate_ks_pods() {
 };
 
 function validate_ks_nodes() {
+    # Show nodes in log output
+    kubectl get nodes
+    ocne cluster info -s
+
     oldifs="$IFS"
     IFS=$'\n'
     array=($(kubectl get no -n kube-system --no-headers))
@@ -402,7 +407,7 @@ function validate_ks_nodes() {
     len=${#array[@]}
     IFS="$oldifs"
     if [[ count -ne len ]]; then
-        do_exit "Number of nodes ready in the system is not sufficient, Ready nodes: $count Total Nodess: $len" 1
+        do_exit "Number of nodes ready in the system is not sufficient, Ready nodes: $count Total Nodes: $len" 1
     fi
     logInfo "Ready nodes: $count Total Nodes: $len"
 
@@ -423,7 +428,7 @@ function main {
         # Give the user a small chance of exiting the script before this happens
         sleep 10
         randomMaster=$(kubectl get node --selector='node-role.kubernetes.io/control-plane' -o wide --no-headers | awk '{ print $1 }' | head -$(( ( RANDOM % 3 )  + 1 )) | tail -1)
-        kubectl taint nodes ${randomMaster} node-role.kubernetes.io/control-plane- || true
+        kubectl taint nodes "${randomMaster}" node-role.kubernetes.io/control-plane- || true
     fi
 
     validate_system
