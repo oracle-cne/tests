@@ -25,7 +25,7 @@ if [[ ! -z ${TLS13} ]]; then
 	fi
 fi
 
-CURL=(curl '"$TLS13"' '*' --fail --max-time 10 --silent --output /dev/null --write-out '%{http_code}\\n')
+CURL=(curl "$TLS13" '*' --fail --max-time 10 --silent --output /dev/null --write-out '%{http_code}\\n')
 
 if [ -z "${KUBECONFIG}" ]; then
     # set default kubeconfig location
