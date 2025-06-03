@@ -170,6 +170,7 @@ doCapiUpgrade() {
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 
 	# Validate Kubernetes Version
+	export KUBECONFIG="$TARGET_KUBECONFIG"
 	run -0 kubectl version -o yaml
 	VERSION_INFO="$output"
 	run -0 bats_pipe echo "$VERSION_INFO" \| yq .serverVersion.major
