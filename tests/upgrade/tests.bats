@@ -169,14 +169,6 @@ doCapiUpgrade() {
 	CP_NAMESPACE="${lines[2]}"
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 
-	# Temporary work around for the OLVM provider - sometimes a node that was upgraded
-	# to a newer Kubernetes version remains visible and in the state "NotReady,SchedulingDisabled".
-	# However, the VM associated withe node has been deleted. Delete any nodes in this state.
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-    for node in $(kubectl --kubeconfig $KUBECONFIG get nodes | grep SchedulingDisabled | awk '{print $1}'); do
-        kubectl delete node $node
-    done
-
 	# Validate Kubernetes Version
 	run -0 kubectl version -o yaml
 	VERSION_INFO="$output"
