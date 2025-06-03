@@ -328,7 +328,7 @@ function run_conformance_tests {
     logInfo "Checking golang if that is installed int he system"
     validate_golang
 
-    # Install latest sonobuys
+    # Install latest sonobuoy
     go get -u -v github.com/heptio/sonobuoy
     check_exit_code $? "go get sonobuoy"
     export PATH=$PATH:$(go env GOPATH)/bin
@@ -358,7 +358,7 @@ function run_conformance_tests {
 };
 
 function print_help() {
-    logInfo "Rune this script with either no argument or optional argument -s to enable snobouy test"
+    logInfo "Run this script with either no argument or optional argument -s to enable sonobuoy test"
     exit 0
 };
 
