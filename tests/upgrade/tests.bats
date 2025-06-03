@@ -174,7 +174,7 @@ doCapiUpgrade() {
 	# However, the VM associated withe node has been deleted. Delete any nodes in this state.
 	export KUBECONFIG="$TARGET_KUBECONFIG"
     for node in $(kubectl --kubeconfig $KUBECONFIG get nodes | grep SchedulingDisabled | awk '{print $1}'); do
-        kubectl delete $node
+        kubectl delete node $node
     done
 
 	# Validate Kubernetes Version
