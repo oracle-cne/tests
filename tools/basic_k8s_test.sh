@@ -363,7 +363,7 @@ function print_help() {
 };
 
 function validate_ks_pods() {
-    for i in $(seq 10); do
+    for i in $(seq 20); do
         all_pods=$(kubectl get po -n kube-system --no-headers)
         number_of_running_pods=$(logInfo "${all_pods}" | grep Running | wc -l)
         number_of_total_pods=$(logInfo "${all_pods}" | wc -l)
