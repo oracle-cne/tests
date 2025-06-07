@@ -8,6 +8,7 @@ PATTERN=
 FORMAT=tap
 RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"
 USE_PODMAN=true
+SUFFIX=tap
 while true; do
 	case "$1" in
 	"") break;;
@@ -22,14 +23,26 @@ done
 
 TESTS=$(find "$TESTDIR" -mindepth 1 -maxdepth 1 -type d)
 
+export GOCOVERDIR="$RESULTS/coverage_raw"
+export MERGED_COVERAGE_DIR="$RESULTS/coverage_merged"
+export COVERAGE="$RESULTS/coverage"
 mkdir -p "$RESULTS"
-export GOCOVERDIR="$RESULTS/coverage"
+mkdir -p "$GOCOVERDIR"
+mkdir -p "$MERGED_COVERAGE_DIR"
+
 
 export PATH="$(pwd)/tools:$PATH"
 
 export MAX_KUBE_VERSION="1.31"
 
+case "$FORMAT" in
+	junit ) SUFFIX=xml;;
+	tap* ) SUFFIX=tap;;
+	* ) SUFFIX=out;;
+esac
+
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
+
 
 for TEST_DIR in $TESTS; do
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
@@ -58,7 +71,13 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+	set -x
+	#bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	set +x
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
+
+go tool covdata merge -i="$GOCOVERDIR" -o="$MERGED_COVERAGE_DIR"
+go tool covdata textfmt -i="$MERGED_COVERAGE_DIR" -o="$COVERAGE"
