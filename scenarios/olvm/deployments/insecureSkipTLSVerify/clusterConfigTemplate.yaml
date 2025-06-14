@@ -1,4 +1,4 @@
-name: insecureSkipTLSVerify
+name: insecureskiptlsverify
 workerNodes: 1
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
@@ -10,7 +10,7 @@ providers:
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL
       credentialsSecret:
-        name: insecureSkipTLSVerify-creds
+        name: insecureskiptlsverify-creds
         namespace: olvm-cluster
       insecureSkipTLSVerify: true
     controlPlaneMachine:

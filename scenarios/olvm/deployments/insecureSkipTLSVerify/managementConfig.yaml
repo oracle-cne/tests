@@ -1,4 +1,4 @@
-name: insecureSkipTLSVerify-mgmt
+name: insecureskiptlsverify-mgmt
 provider: libvirt
 headless: true
 controlPlaneNodes: 1
