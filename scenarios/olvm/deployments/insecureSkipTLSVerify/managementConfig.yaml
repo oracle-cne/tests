@@ -1,0 +1,10 @@
+name: insecureskiptlsverify-mgmt
+provider: libvirt
+headless: true
+controlPlaneNodes: 1
+providers:
+  libvirt:
+    controlPlaneNode:
+      cpu: 3
+      memory: 10000000K
+      storage: 30G
