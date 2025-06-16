@@ -41,6 +41,22 @@ scaleCapiWorker() {
 
     run -0 yq '.kind, .metadata.name, .metadata.namespace' "$CAPI_RESOURCES"
     KINDS_AND_NAMES="$output"
+	run -0 grep KubeadmControlPlane -A 2 <(echo "$KINDS_AND_NAMES")
+	CP_NAME="${lines[1]}"
+	CP_NAMESPACE="${lines[2]}"
+
+    kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=3
+	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
+
+    kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=1
+	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
+}
+
+scaleCapiControlPlane() {
+    export KUBECONFIG="$MGMT_KUBECONFIG"
+
+    run -0 yq '.kind, .metadata.name, .metadata.namespace' "$CAPI_RESOURCES"
+    KINDS_AND_NAMES="$output"
 	run -0 grep MachineDeployment -A 2 <(echo "$KINDS_AND_NAMES")
 	MD_NAME="${lines[1]}"
 	MD_NAMESPACE="${lines[2]}"
@@ -56,6 +72,13 @@ scaleCapiWorker() {
 @test "Scale Workers" {
     case "$PROVIDER" in
     olvm ) scaleCapiWorker ;;
+	*) false ;;
+    esac
+}
+
+@test "Scale ControlPlane" {
+    case "$PROVIDER" in
+    olvm ) scaleCapiControlPlane ;;
 	*) false ;;
     esac
 }
