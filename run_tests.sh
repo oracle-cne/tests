@@ -4,6 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 TESTDIR=./scenarios/sanity
+TEST_GROUPS="tests/cleanliness tests/functional tests/upgrade"
 PATTERN=
 FORMAT=tap
 RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"
@@ -59,11 +60,7 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-  if [ -z "$TEST_GROUPS" ]; then
-	  bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
-  else
-	  bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive "$TEST_GROUPS"
-  fi
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive $(echo $TEST_GROUPS)
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
