@@ -17,7 +17,7 @@ waitFor() {
 		run -0 kubectl -n "$NAMESPACE" get "$KIND" "$NAME" -o yaml
 		YAML="$output"
 
-		run -0 yq '.status.replicas' <(echo "$YAML")
+		run -0 yq '.spec.replicas' <(echo "$YAML")
 		REPLICAS="$output"
 
 		run -0 yq '.status.readyReplicas' <(echo "$YAML")
