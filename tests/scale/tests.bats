@@ -3,6 +3,12 @@
 # Copyright (c) 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+setup_file() {
+    if [ "$CAPI_MODE" == "false" ]; then
+        skip "Skipping scale tests because CAPI_MODE is false"
+    fi
+}
+
 waitFor() {
 	KIND="$1"
 	NAMESPACE="$2"

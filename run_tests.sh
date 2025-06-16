@@ -4,7 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 TESTDIR=./scenarios/sanity
-TEST_GROUPS="tests/cleanliness tests/functional tests/upgrade"
+TEST_GROUPS="tests/functional tests/upgrade tests/scale"
 PATTERN=
 FORMAT=tap
 RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"

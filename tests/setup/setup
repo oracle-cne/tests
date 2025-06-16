@@ -104,6 +104,7 @@ teardown_olvm() {
 
 setup_capi() {
 	export UPDATE_MODE="capi"
+	export CAPI_MODE="true"
 
 	run stat "$MGMT_CONFIG"
 	if [ "$status" -eq 0 ]; then
@@ -133,6 +134,7 @@ setup_capi() {
 
 setup_noncapi() {
 	export UPDATE_MODE="node"
+	export CAPI_MODE="false"
 }
 
 setup_suite() {
