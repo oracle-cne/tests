@@ -36,7 +36,7 @@ waitFor() {
 	false
 }
 
-scaleCapiWorker() {
+scaleCapiControlPlane() {
     export KUBECONFIG="$MGMT_KUBECONFIG"
 
     run -0 yq '.kind, .metadata.name, .metadata.namespace' "$CAPI_RESOURCES"
@@ -52,7 +52,7 @@ scaleCapiWorker() {
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 }
 
-scaleCapiControlPlane() {
+scaleCapiWorker() {
     export KUBECONFIG="$MGMT_KUBECONFIG"
 
     run -0 yq '.kind, .metadata.name, .metadata.namespace' "$CAPI_RESOURCES"
