@@ -16,7 +16,7 @@ while true; do
 	-F | --format ) FORMAT="$2"; shift; shift ;;
 	-r | --results ) RESULTS="$2"; shift; shift ;;
 	-n | --no-podman ) USE_PODMAN="$2"; shift; shift ;;
-  -t | --tests-groups ) TEST_GROUPS="$2"; shift; shift ;;
+  -t | --test-groups ) TEST_GROUPS="$2"; shift; shift ;;
 	*) echo "$1 is not a valid parameter"; exit 1 ;;
 	esac
 done
