@@ -16,6 +16,7 @@ while true; do
 	-F | --format ) FORMAT="$2"; shift; shift ;;
 	-r | --results ) RESULTS="$2"; shift; shift ;;
 	-n | --no-podman ) USE_PODMAN="$2"; shift; shift ;;
+  -t | --tests-groups ) TEST_GROUPS="$2"; shift; shift ;;
 	*) echo "$1 is not a valid parameter"; exit 1 ;;
 	esac
 done
@@ -58,7 +59,11 @@ for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+  if [ -z "$TEST_GROUPS" ]; then
+	  bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+  else
+	  bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive "$TEST_GROUPS"
+  fi
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
