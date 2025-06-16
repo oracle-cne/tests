@@ -58,7 +58,7 @@ To run the libvirt tests:
 # used by the configuration set
 $ ./scenarios/libvirt/environment/setup.sh
 
-$ ./run_tests.sh --dir ./scenarios/libvirt
+$ ./run_tests.sh --dir ./scenarios/libvirt/deployments
 
 # To remove the test infrastructure, run the following
 # script.  This is not essential, and should only be done
