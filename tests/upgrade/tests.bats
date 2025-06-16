@@ -45,6 +45,19 @@ waitFor() {
 	false
 }
 
+waitForNoNodesSchedulingDisabled() {
+    echo "Wait for no nodes to be in SchedulingDisabled state"
+    for i in $(seq 1 30); do
+        kubectl get nodes | grep -qv SchedulingDisabled
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+        sleep 10
+    done
+
+    false
+}
+
 doUpgrade() {
 	TGT="$1"
 	doSkip "$TGT"
@@ -168,6 +181,7 @@ doCapiUpgrade() {
 	CP_NAME="${lines[1]}"
 	CP_NAMESPACE="${lines[2]}"
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
+    waitForNoNodesSchedulingDisabled
 
 	# Validate Kubernetes Version
 	export KUBECONFIG="$TARGET_KUBECONFIG"
@@ -197,6 +211,7 @@ doCapiUpgrade() {
 	MD_NAME="${lines[1]}"
 	MD_NAMESPACE="${lines[2]}"
 	waitFor machinedeployment "$MD_NAMESPACE" "$MD_NAME"
+    waitForNoNodesSchedulingDisabled
 
 	# All nodes should be updated, and all other nodes
 	# destroyed.  Give it a bit for the controllers to
