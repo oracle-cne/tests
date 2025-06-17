@@ -386,7 +386,7 @@ function validate_ks_pods() {
 
 function validate_ks_nodes() {
     # Show nodes in log output
-    kubectl get nodes
+    kubectl get nodes -o wide
     ocne cluster info -s
 
     oldifs="$IFS"
