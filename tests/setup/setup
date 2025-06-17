@@ -167,7 +167,7 @@ setup_suite() {
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
 
-  # The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
+	# The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
 	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=900s
 	kubectl wait deployment -n ocne-system ocne-catalog --for condition=Available=True --timeout=600s
 }
