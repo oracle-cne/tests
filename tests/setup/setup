@@ -74,9 +74,9 @@ setup_oci() {
 }
 
 setup_olvm() {
-  echo "Setup OLVM"
-  export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
-  ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
+	echo "Setup OLVM"
+	export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
+	ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 
 teardown_oci() {
@@ -98,7 +98,7 @@ teardown_oci() {
 }
 
 teardown_olvm() {
-  echo "Teardown OLVM"
+	echo "Teardown OLVM"
 }
 
 
@@ -126,7 +126,7 @@ setup_capi() {
 	if [ "$output" != "false" ]; then
 		case "$PROVIDER" in
 		oci ) setup_oci ;;
-    olvm ) setup_olvm ;;
+		olvm ) setup_olvm ;;
 		*) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
@@ -204,7 +204,7 @@ teardown_suite() {
 		case "$PROVIDER" in
 		libvirt | byo ) teardown_noncapi ;;
 		oci ) teardown_oci ;;
-    olvm ) teardown_olvm ;;
+		olvm ) teardown_olvm ;;
 		* ) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
