@@ -34,6 +34,8 @@ export MAX_KUBE_VERSION="1.31"
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
 for TEST_DIR in $TESTS; do
+	export INFO="$TEST_DIR/info.yaml"
+
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
 		echo "Skipping $TEST_DIR"
 		continue
@@ -62,7 +64,6 @@ for TEST_DIR in $TESTS; do
 	export TEST_DIR_CURRENT="$TEST_DIR"
 	export CLUSTER_CONFIG="$TEST_DIR/clusterConfig.yaml"
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
-	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
 	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive $(echo $TEST_GROUPS)
