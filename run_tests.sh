@@ -17,7 +17,7 @@ while true; do
 	-F | --format ) FORMAT="$2"; shift; shift ;;
 	-r | --results ) RESULTS="$2"; shift; shift ;;
 	-n | --no-podman ) USE_PODMAN="$2"; shift; shift ;;
-  -t | --test-groups ) TEST_GROUPS="$2"; shift; shift ;;
+	-t | --test-groups ) TEST_GROUPS="$2"; shift; shift ;;
 	*) echo "$1 is not a valid parameter"; exit 1 ;;
 	esac
 done
@@ -41,10 +41,10 @@ for TEST_DIR in $TESTS; do
 		continue
 	fi
 	export SCALING_DEPLOYMENT=$(yq .scalingDeployment "$INFO")
-  if [ "$SCALING_DEPLOYMENT" = "true" ] && [ "$CAPI_MODE" = "false" ]; then
-  	echo "Skipping $TEST_DIR" because CAPI_MODE is false and scalingDeployment is true
-  	continue
-  fi
+	if [ "$SCALING_DEPLOYMENT" = "true" ] && [ "$CAPI_MODE" = "false" ]; then
+		echo "Skipping $TEST_DIR" because CAPI_MODE is false and scalingDeployment is true
+		continue
+	fi
 	echo "Running scenario $TEST_DIR"
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
