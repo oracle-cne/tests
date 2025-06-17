@@ -76,7 +76,6 @@ To run the OLVM tests:
 $ ./scenarios/olvm/environment/setup.sh
 
 $ ./run_tests.sh --dir ./scenarios/olvm/deployments
-$ ./run_tests.sh --dir ./scenarios/olvm/scale --test-groups "tests/scale"
 
 # To remove the test infrastructure, run the following
 # script.  This is not essential, and should only be done

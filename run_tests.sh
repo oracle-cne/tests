@@ -38,12 +38,13 @@ for TEST_DIR in $TESTS; do
 		echo "Skipping $TEST_DIR"
 		continue
 	fi
-	if echo "$TEST_DIR" | grep -qv "scale"; then
-	  if [ "$CAPI_MODE" == "false" ]; then
-	    echo "Skipping $TEST_DIR" because CAPI_MODE is false
-	    continue
-	  fi
-	fi
+	run yq .scalingDeployment "$INFO"
+	export SCALING_DEPLOYMENT="false"
+  if [ "$output" = "true" ] && [ "$CAPI_MODE" == "false" ]; then
+  	echo "Skipping $TEST_DIR" because CAPI_MODE is false and scalingDeployment is true
+  	export SCALING_DEPLOYMENT="true"
+  	continue
+  fi
 	echo "Running scenario $TEST_DIR"
 	if [ -f "$TEST_DIR/defaults.yaml" ]; then
 		export OCNE_DEFAULTS="$TEST_DIR/defaults.yaml"
