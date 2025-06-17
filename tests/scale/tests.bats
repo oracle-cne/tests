@@ -4,7 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 setup_file() {
-    if [ "$SCALING_DEPLOYMENT" = "false" ]; then
+    if [ "$SCALING_DEPLOYMENT" != "true" ]; then
         skip "Skipping scale tests because deployment is not configured for scaling"
     fi
 }
