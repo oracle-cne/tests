@@ -74,9 +74,9 @@ setup_oci() {
 }
 
 setup_olvm() {
-  echo "Setup OLVM"
-  export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
-  ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
+	echo "Setup OLVM"
+	export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
+	ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
 }
 
 teardown_oci() {
@@ -98,12 +98,13 @@ teardown_oci() {
 }
 
 teardown_olvm() {
-  echo "Teardown OLVM"
+	echo "Teardown OLVM"
 }
 
 
 setup_capi() {
 	export UPDATE_MODE="capi"
+	export CAPI_MODE="true"
 
 	run stat "$MGMT_CONFIG"
 	if [ "$status" -eq 0 ]; then
@@ -125,7 +126,7 @@ setup_capi() {
 	if [ "$output" != "false" ]; then
 		case "$PROVIDER" in
 		oci ) setup_oci ;;
-    olvm ) setup_olvm ;;
+		olvm ) setup_olvm ;;
 		*) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
@@ -133,6 +134,7 @@ setup_capi() {
 
 setup_noncapi() {
 	export UPDATE_MODE="node"
+	export CAPI_MODE="false"
 }
 
 setup_suite() {
@@ -165,7 +167,7 @@ setup_suite() {
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
 
-  # The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
+	# The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
 	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=900s
 	kubectl wait deployment -n ocne-system ocne-catalog --for condition=Available=True --timeout=600s
 }
@@ -202,7 +204,7 @@ teardown_suite() {
 		case "$PROVIDER" in
 		libvirt | byo ) teardown_noncapi ;;
 		oci ) teardown_oci ;;
-    olvm ) teardown_olvm ;;
+		olvm ) teardown_olvm ;;
 		* ) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi

@@ -4,6 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 TESTDIR=./scenarios/sanity
+TEST_GROUPS="tests/functional tests/upgrade tests/scale"
 PATTERN=
 FORMAT=tap
 RESULTS="$(pwd)/$(date +"%Y-%m-%d-%H:%m")"
@@ -16,6 +17,7 @@ while true; do
 	-F | --format ) FORMAT="$2"; shift; shift ;;
 	-r | --results ) RESULTS="$2"; shift; shift ;;
 	-n | --no-podman ) USE_PODMAN="$2"; shift; shift ;;
+	-t | --test-groups ) TEST_GROUPS="$2"; shift; shift ;;
 	*) echo "$1 is not a valid parameter"; exit 1 ;;
 	esac
 done
@@ -32,8 +34,15 @@ export MAX_KUBE_VERSION="1.31"
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
 for TEST_DIR in $TESTS; do
+	export INFO="$TEST_DIR/info.yaml"
+
 	if echo "$TEST_DIR" | grep -v "$PATTERN"; then
 		echo "Skipping $TEST_DIR"
+		continue
+	fi
+	export SCALING_DEPLOYMENT=$(yq .scalingDeployment "$INFO")
+	if [ "$SCALING_DEPLOYMENT" = "true" ] && [ "$CAPI_MODE" = "false" ]; then
+		echo "Skipping $TEST_DIR" because CAPI_MODE is false and scalingDeployment is true
 		continue
 	fi
 	echo "Running scenario $TEST_DIR"
@@ -55,10 +64,9 @@ for TEST_DIR in $TESTS; do
 	export TEST_DIR_CURRENT="$TEST_DIR"
 	export CLUSTER_CONFIG="$TEST_DIR/clusterConfig.yaml"
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
-	export INFO="$TEST_DIR/info.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive tests/cleanliness tests/functional tests/upgrade
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive $(echo $TEST_GROUPS)
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
