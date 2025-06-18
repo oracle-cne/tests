@@ -44,7 +44,7 @@ if [ -z "$OLVM_ENDING_IPV4_ADDRESS_W" ]; then
 fi
 
 if [ -z "$OLVM_DATACENTER_NAME" ]; then
-  export OLVM_DATACENTER_NAME=default
+	export OLVM_DATACENTER_NAME=default
 	echo Defaulting OLVM_DATACENTER_NAME to "default"
 fi
 
@@ -54,7 +54,7 @@ if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
 fi
 
 if [ -z "$OLVM_NETWORK_NAME" ]; then
-  export OLVM_NETWORK_NAME=vlan
+	export OLVM_NETWORK_NAME=vlan
 	echo Defaulting OLVM_NETWORK_NAME to "vlan"
 fi
 
@@ -64,17 +64,17 @@ if [ -z "$OLVM_NETWORK_GATEWAY_IP" ]; then
 fi
 
 if [ -z "$OLVM_NETWORK_VNIC_NAME" ]; then
-  export OLVM_NETWORK_VNIC_NAME=nic-1
+	export OLVM_NETWORK_VNIC_NAME=nic-1
 	echo Defaulting OLVM_NETWORK_VNIC_NAME to "nic-1"
 fi
 
 if [ -z "$OLVM_NETWORK_INTERFACE" ]; then
-  export OLVM_NETWORK_INTERFACE=enp1s0
+	export OLVM_NETWORK_INTERFACE=enp1s0
 	echo Defaulting OLVM_NETWORK_INTERFACE to "enp1s0"
 fi
 
 if [ -z "$OLVM_NETWORK_INTERFACE_TYPE" ]; then
-  export OLVM_NETWORK_INTERFACE_TYPE=virtio
+	export OLVM_NETWORK_INTERFACE_TYPE=virtio
 	echo Defaulting OLVM_NETWORK_INTERFACE_TYPE to "virtio"
 fi
 
@@ -103,7 +103,7 @@ fi
 TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)
 
 for TEMPLATE in $TEMPLATES; do
-  CONFIG_FILE=${TEMPLATE/%clusterConfigTemplate.yaml}clusterConfig.yaml
-  echo "Generating $CONFIG_FILE"
-  envsubst < "$TEMPLATE" > "$CONFIG_FILE"
+	CONFIG_FILE=${TEMPLATE/%clusterConfigTemplate.yaml}clusterConfig.yaml
+	echo "Generating $CONFIG_FILE"
+	envsubst < "$TEMPLATE" > "$CONFIG_FILE"
 done
