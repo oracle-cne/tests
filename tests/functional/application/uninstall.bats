@@ -6,12 +6,12 @@
 # bats file_tags=APPLICATION
 
 @test "Uninstalling an application that does not exist fails" {
-    run ocne application uninstall --release foobar
-    [ $status -ne 0 ]
+	run ocne application uninstall --release foobar
+	[ $status -ne 0 ]
 }
 
 @test "Uninstalling an application succeeds" {
-    ocne application install --release kube-state-metrics --name kube-state-metrics --namespace kube-state-metrics
-    ocne application uninstall --release kube-state-metrics --namespace kube-state-metrics
+	ocne application install --release kube-state-metrics --name kube-state-metrics --namespace kube-state-metrics
+	ocne application uninstall --release kube-state-metrics --namespace kube-state-metrics
 }
 
