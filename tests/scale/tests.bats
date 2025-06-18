@@ -4,6 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 setup_file() {
+	echo "SCALING_DEPLOYMENT = $SCALING_DEPLOYMENT"
 	if [ "$SCALING_DEPLOYMENT" != "true" ]; then
 		skip "Skipping scale tests because deployment is not configured for scaling"
 	fi
@@ -51,10 +52,10 @@ scaleCapiControlPlane() {
 	CP_NAME="${lines[1]}"
 	CP_NAMESPACE="${lines[2]}"
 
-	kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=3
+	kubectl scale kubeadmcontrolplane "$CP_NAME" --namespace "$CP_NAMESPACE" --replicas=3
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 
-	kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=1
+	kubectl scale kubeadmcontrolplane "$CP_NAME" --namespace "$CP_NAMESPACE" --replicas=1
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 }
 
@@ -67,10 +68,10 @@ scaleCapiWorker() {
 	MD_NAME="${lines[1]}"
 	MD_NAMESPACE="${lines[2]}"
 
-	kubectl scale machinedeployment $MD_NAME --namespace $MD_NAMESPACE --replicas=3
+	kubectl scale machinedeployment "$MD_NAME" --namespace "$MD_NAMESPACE" --replicas=3
 	waitFor machinedeployment "$MD_NAMESPACE" "$MD_NAME"
 
-	kubectl scale machinedeployment $MD_NAME --namespace $MD_NAMESPACE --replicas=1
+	kubectl scale machinedeployment "$MD_NAME" --namespace "$MD_NAMESPACE" --replicas=1
 	waitFor machinedeployment "$MD_NAMESPACE" "$MD_NAME"
 }
 
