@@ -40,7 +40,11 @@ for TEST_DIR in $TESTS; do
 		echo "Skipping $TEST_DIR"
 		continue
 	fi
-	export SCALING_DEPLOYMENT=$(yq .scalingDeployment "$INFO")
+	scaling=$(yq .scalingDeployment "$INFO")
+	if [ "$scaling" = "null" ]; then
+		scaling="false"
+	fi
+	export SCALING_DEPLOYMENT="$scaling"
 	if [ "$SCALING_DEPLOYMENT" = "true" ] && [ "$CAPI_MODE" = "false" ]; then
 		echo "Skipping $TEST_DIR" because CAPI_MODE is false and scalingDeployment is true
 		continue
