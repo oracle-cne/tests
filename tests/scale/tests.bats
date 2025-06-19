@@ -5,7 +5,7 @@
 
 setup_file() {
 	echo "SCALING_DEPLOYMENT = $SCALING_DEPLOYMENT"
-	if [ "$SCALING_DEPLOYMENT" != "true" ]; then
+	if [ "$SCALING_DEPLOYMENT" = "false" ]; then
 		skip "Skipping scale tests because deployment is not configured for scaling"
 	fi
 }
