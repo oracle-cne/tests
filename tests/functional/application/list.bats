@@ -6,7 +6,7 @@
 # bats file_tags=APPLICATION
 
 @test "List applications" {
-    ocne application list
-    ocne application list -A
+	ocne application list
+	ocne application list -A
 }
 

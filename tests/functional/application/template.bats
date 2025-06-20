@@ -18,9 +18,9 @@
 }
 
 @test "Generating a template in interactive mode emits reasonable information" {
-    SUFFIX=$RANDOM
-    TEMPLATE_OUTPUT_SCRIPT=$HOME/template_output-$SUFFIX.sh
-    TEMPLATE_OUTPUT=$HOME/template_output_$SUFFIX
+	SUFFIX=$RANDOM
+	TEMPLATE_OUTPUT_SCRIPT=$HOME/template_output-$SUFFIX.sh
+	TEMPLATE_OUTPUT=$HOME/template_output_$SUFFIX
 
 	cat > $TEMPLATE_OUTPUT_SCRIPT << EOF
 #! /usr/bin/env bash

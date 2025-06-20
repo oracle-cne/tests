@@ -51,10 +51,10 @@ scaleCapiControlPlane() {
 	CP_NAME="${lines[1]}"
 	CP_NAMESPACE="${lines[2]}"
 
-	kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=3
+	kubectl scale kubeadmcontrolplane "$CP_NAME" --namespace "$CP_NAMESPACE" --replicas=3
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 
-	kubectl scale kubeadmcontrolplane $CP_NAME --namespace $CP_NAMESPACE --replicas=1
+	kubectl scale kubeadmcontrolplane "$CP_NAME" --namespace "$CP_NAMESPACE" --replicas=1
 	waitFor kubeadmcontrolplane "$CP_NAMESPACE" "$CP_NAME"
 }
 
@@ -67,10 +67,10 @@ scaleCapiWorker() {
 	MD_NAME="${lines[1]}"
 	MD_NAMESPACE="${lines[2]}"
 
-	kubectl scale machinedeployment $MD_NAME --namespace $MD_NAMESPACE --replicas=3
+	kubectl scale machinedeployment "$MD_NAME" --namespace "$MD_NAMESPACE" --replicas=3
 	waitFor machinedeployment "$MD_NAMESPACE" "$MD_NAME"
 
-	kubectl scale machinedeployment $MD_NAME --namespace $MD_NAMESPACE --replicas=1
+	kubectl scale machinedeployment "$MD_NAME" --namespace "$MD_NAMESPACE" --replicas=1
 	waitFor machinedeployment "$MD_NAMESPACE" "$MD_NAME"
 }
 
