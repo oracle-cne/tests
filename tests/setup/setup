@@ -11,18 +11,19 @@ bats_require_minimum_version 1.5.0
 
 setup_oci() {
 	run -0 yq -e .compartment "$INFO"
+	export CAPI_RESOURCES="$TEST_DIR_CURRENT/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export PARENT="$output"
 	export CHILD="$CASE_NAME"
-	echo Parent compartment is $PARENT
-	echo New compartment is $CHILD
+	echo Parent compartment is "$PARENT"
+	echo New compartment is "$CHILD"
 
 	run -0 yq -e .providers.oci.bucketName "$CLUSTER_CONFIG"
 	export BUCKET="$output"
-	echo Bucket is $BUCKET
+	echo Bucket is "$BUCKET"
 
 	run -0 oci-make-compartment-under.sh "$PARENT" "$CHILD" "Cluster API Tests"
 	export COMPARTMENT_ID=$(printf "$output" | tail -1)
-	echo Compartment ID is $COMPARTMENT_ID
+	echo Compartment ID is "$COMPARTMENT_ID"
 
 	sed -i -e "s/${STUB_COMPARTMENT_ID}/${COMPARTMENT_ID}/g" "$CAPI_RESOURCES"
 
@@ -47,7 +48,7 @@ setup_oci() {
 			echo "$output"
 			run -0 grep --only-matching -e 'ocid1.image.[a-zA-Z0-9.]*' <(echo "$output")
 			export X86_IMAGE="$output"
-			echo amd64 image id is $X86_IMAGE
+			echo amd64 image id is "$X86_IMAGE"
 			echo sed -i -e "s/${X86_IMAGE_ORIG}/${X86_IMAGE}/g" "$CAPI_RESOURCES"
 			sed -i -e "s/${X86_IMAGE_ORIG}/${X86_IMAGE}/g" "$CAPI_RESOURCES"
 		fi
@@ -72,6 +73,12 @@ setup_oci() {
 	fi
 }
 
+setup_olvm() {
+	echo "Setup OLVM"
+	export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
+	ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
+}
+
 teardown_oci() {
 	if [ -n "X86_IMAGE" ]; then
 			sed -i -e "s/${X86_IMAGE}/${X86_IMAGE_ORIG}/g" "$CAPI_RESOURCES"
@@ -90,9 +97,14 @@ teardown_oci() {
 	fi
 }
 
+teardown_olvm() {
+	echo "Teardown OLVM"
+}
+
 
 setup_capi() {
 	export UPDATE_MODE="capi"
+	export CAPI_MODE="true"
 
 	run stat "$MGMT_CONFIG"
 	if [ "$status" -eq 0 ]; then
@@ -100,7 +112,7 @@ setup_capi() {
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false -c "$MGMT_CONFIG"
 	else
 		export MGMT_NAME="$CASE_NAME-mgmt"
-		# If there is no management cluser, make one
+		# If there is no management cluster, make one
 		ocne cluster start -C "$MGMT_NAME" --auto-start-ui=false
 	fi
 
@@ -114,6 +126,7 @@ setup_capi() {
 	if [ "$output" != "false" ]; then
 		case "$PROVIDER" in
 		oci ) setup_oci ;;
+		olvm ) setup_olvm ;;
 		*) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
@@ -121,6 +134,7 @@ setup_capi() {
 
 setup_noncapi() {
 	export UPDATE_MODE="node"
+	export CAPI_MODE="false"
 }
 
 setup_suite() {
@@ -142,7 +156,7 @@ setup_suite() {
 
 	run -0 yq -e .name "$CLUSTER_CONFIG"
 	export CLUSTER_NAME="$output"
-	echo Cluster name is $CLUSTER_NAME
+	echo Cluster name is "$CLUSTER_NAME"
 
 	if [ -f "$START_SCRIPT" ]; then
 		sh "$START_SCRIPT"
@@ -153,7 +167,8 @@ setup_suite() {
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
 
-	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=600s
+	# The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
+	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=900s
 	kubectl wait deployment -n ocne-system ocne-catalog --for condition=Available=True --timeout=600s
 }
 
@@ -189,6 +204,7 @@ teardown_suite() {
 		case "$PROVIDER" in
 		libvirt | byo ) teardown_noncapi ;;
 		oci ) teardown_oci ;;
+		olvm ) teardown_olvm ;;
 		* ) echo "$PROVIDER is not a valid provider"; false ;;
 		esac
 	fi
