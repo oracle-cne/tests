@@ -37,4 +37,4 @@ fi
 
 
 INFO=$(oci iam compartment create --compartment-id "$PARENT_ID" --name "$CHILD" --description "$DESC")
-echo $(printf "$INFO" | jq '.data.id')
+echo $(printf "$INFO" | jq -r '.data.id')
