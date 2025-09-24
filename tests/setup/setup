@@ -196,7 +196,12 @@ teardown_suite() {
 
 	if [ -n "$MGMT_KUBECONFIG" ]; then
 		unset KUBECONFIG
-		ocne cluster delete -c "$MGMT_CONFIG"
+		run stat "$MGMT_CONFIG"
+		if [ "$status" -eq 0]; then
+			ocne cluster delete -C "$MGMT_NAME" -c "$MGMT_CONFIG"
+		else
+			ocne cluster delete -C "$MGMT_NAME"
+		fi
 	fi
 
 	run yq .preserve "$INFO"
