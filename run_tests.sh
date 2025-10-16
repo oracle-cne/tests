@@ -87,3 +87,6 @@ done
 
 go tool covdata merge -i="$GOCOVERDIR" -o="$MERGED_COVERAGE_DIR"
 go tool covdata textfmt -i="$MERGED_COVERAGE_DIR" -o="$COVERAGE"
+
+echo "Results Files"
+find "$RESULTS" -type f 
