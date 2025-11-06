@@ -4,7 +4,7 @@ set -x
 
 EXCEPTION='container-registry.oracle.com/olcne/nginx container-registry.oracle.com/olcne/pause:3.10 container-registry.oracle.com/olcne/pause:3.9'
 
-BASE_INSPECT="$(podman image inspect container-registry.oracle.com/os/oraclelinux:8)"
+BASE_INSPECT="$(podman image inspect container-registry.oracle.com/olcne/ock:base-image)"
 BASE_LAYER=$(echo "$BASE_INSPECT" | yq '.[].RootFS.Layers[0]')
 
 IMAGES=$(podman images --format='{{.Repository}}:{{.Tag}}')
