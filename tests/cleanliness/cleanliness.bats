@@ -26,7 +26,10 @@ bats_require_minimum_version 1.5.0
 		KUBELET_VERSION="$output"
 		echo "$KUBELET_VERSION" | grep -e "^v$KUBE_VERSION\\."
 
-		run -0 kubectl get node $node -o=jsonpath='{.status.nodeInfo.kubeProxyVersion}'
+		# 1.33 k8s removes .status.nodeInfo.kubeProxyVersion this information
+		run -0 kubectl get po -n kube-system | grep kube-proxy | tail -n1 | awk '{print $1}'
+		KUBE_PROXY_POD="$output"
+		run -0 kubectl exec -it $KUBE_PROXY_POD -n kube-system -- /usr/local/bin/kube-proxy --version | awk '{print $2}'
 		KUBE_PROXY_VERSION="$output"
 		echo "$KUBE_PROXY_VERSION" | grep -e "^v$KUBE_VERSION\\."
 	done
