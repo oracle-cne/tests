@@ -32,7 +32,6 @@ mkdir -p "$RESULTS"
 mkdir -p "$GOCOVERDIR"
 mkdir -p "$MERGED_COVERAGE_DIR"
 
-
 export PATH="$(pwd)/tools:$PATH"
 
 export MAX_KUBE_VERSION="1.32"
