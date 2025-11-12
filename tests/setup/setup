@@ -10,6 +10,7 @@ export STUB_ARM_IMAGE="armImageStub"
 bats_require_minimum_version 1.5.0
 
 setup_oci() {
+	export OCI_CAPI=true
 	run -0 yq -e .compartment "$INFO"
 	export CAPI_RESOURCES="$TEST_DIR_CURRENT/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export PARENT="$output"
