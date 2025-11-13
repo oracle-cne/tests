@@ -79,7 +79,7 @@ for TEST_DIR in $TESTS; do
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
-	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --recursive $(echo $TEST_GROUPS) | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
+	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --show-output-of-passing-tests --verbose-run --print-output-on-failure --recursive $(echo $TEST_GROUPS) | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
 done
 
 ./tools/stop-test-catalog.sh "$USE_PODMAN"

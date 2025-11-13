@@ -18,8 +18,11 @@ bats_require_minimum_version 1.5.0
 	run -0 kubectl get node -o=jsonpath='{.items[*].metadata.name}'
 	NODES="$output"
 
-	run -0 ocne cluster show -C "$CLUSTER_NAME" -f 'config.kubernetesVersion'
-	KUBE_VERSION="$output"
+	KUBE_VERSION="${TARGET_KUBE_VERSION}"
+	if [ -z "$KUBE_VERSION" ]; then
+		run -0 ocne cluster show -C "$CLUSTER_NAME" -f 'config.kubernetesVersion'
+		KUBE_VERSION="$output"
+	fi
 
 	for node in $NODES; do
 		run -0 kubectl get node $node -o=jsonpath='{.status.nodeInfo.kubeletVersion}'
