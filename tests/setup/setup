@@ -18,7 +18,7 @@ setup_oci() {
 	echo Parent compartment is "$PARENT"
 	echo New compartment is "$CHILD"
 
-	run -0 yq -e .providers.oci.bucketName "$CLUSTER_CONFIG"
+	run -0 yq -e .providers.oci.imageBucket "$CLUSTER_CONFIG"
 	export BUCKET="$output"
 	echo Bucket is "$BUCKET"
 
