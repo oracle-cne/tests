@@ -39,7 +39,7 @@ waitFor() {
 			return 0
 		fi
 
-		sleep 12
+		sleep 9
 	done
 
 	false
@@ -52,7 +52,7 @@ waitForNoNodesSchedulingDisabled() {
 			if [ $? -eq 0 ]; then
 					return 0
 			fi
-			sleep 10
+			sleep 8
 	done
 
 	false
@@ -119,7 +119,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 11
 		done
 
 		# Sometimes the NoSchedule taint gets stuck if the kube-apiserver
@@ -144,7 +144,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 12
 		done
 	done
 
@@ -237,7 +237,7 @@ doCapiUpgrade() {
 			export KUBECONFIG="$MGMT_KUBECONFIG"
 			return 0
 		fi
-		sleep 10
+		sleep 13
 	done
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 	false
