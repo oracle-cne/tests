@@ -89,7 +89,8 @@ doNodeUpgrade() {
 		run -0 kubectl get node -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.annotations}{"\n"}{end}'
 		echo "node annotations are are $output"
 
-		run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		#run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		run bats_pipe ocne cluster info \| grep -e 'control plane.*v1.*true$' -e 'worker.*v1.*true$'
 		UPDATES="$output"
 		NUM_UPDATES=$(echo -n "$UPDATES" | wc -l)
 		echo "updates: $UPDATES"
