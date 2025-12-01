@@ -83,13 +83,8 @@ if [ -z "$OLVM_CA_CERT_PATH" ]; then
 	exit 1
 fi
 
-if [ -z "$OLVM_VM_TEMPLATE_1_31" ]; then
-	echo OLVM_VM_TEMPLATE_1_31 is not defined
-	exit 1
-fi
-
-if [ -z "$OLVM_VM_TEMPLATE_1_30" ]; then
-	echo OLVM_VM_TEMPLATE_1_30 is not defined
+if [ -z "$OLVM_VM_TEMPLATE" ]; then
+	echo OLVM_VM_TEMPLATE is not defined
 	exit 1
 fi
 
