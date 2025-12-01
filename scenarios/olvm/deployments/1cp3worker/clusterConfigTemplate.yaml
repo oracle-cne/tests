@@ -7,6 +7,10 @@ provider: olvm
 providers:
   olvm:
     namespace: olvm-cluster
+    proxy:
+      HttpsProxy: $OLVM_HTTPS_PROXY
+      HttpProxy: $OLVM_HTTP_PROXY
+      NoProxy: $OLVM_NO_PROXY
     olvmDatacenterName: $OLVM_DATACENTER_NAME
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL

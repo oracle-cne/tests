@@ -93,6 +93,21 @@ if [ -z "$NAMESERVER_IP" ]; then
 	exit 1
 fi
 
+if [ -z "$OLVM_HTTPS_PROXY" ]; then
+	echo OLVM_HTTPS_PROXY is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_HTTP_PROXY" ]; then
+	echo OLVM_HTTP_PROXY is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_NO_PROXY" ]; then
+	echo OLVM_NO_PROXY is not defined
+	exit 1
+fi
+
 
 # Generate the OLVM configuration files
 TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)
