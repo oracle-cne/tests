@@ -8,6 +8,11 @@ TESTDIR=./scenarios/olvm
 
 # The OLVM environment variables are either set manually by the local user
 # or by the environment of a build job running the tests.
+if [ -z "$OLVM_CLUSTER_NAMESPACE" ]; then
+	echo OLVM_CLUSTER_NAMESPACE is not defined
+	exit 1
+fi
+
 if [ -z "$OLVM_SERVER_URL" ]; then
 	echo OLVM_SERVER_URL is not defined
 	exit 1

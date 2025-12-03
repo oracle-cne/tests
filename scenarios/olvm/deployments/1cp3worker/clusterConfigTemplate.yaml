@@ -6,7 +6,7 @@ virtualIp: $OLVM_VIRTUAL_IP
 provider: olvm
 providers:
   olvm:
-    namespace: olvm-cluster
+    namespace: $OLVM_CLUSTER_NAMESPACE
     proxy:
       httpsProxy: $OLVM_HTTPS_PROXY
       httpProxy: $OLVM_HTTP_PROXY
