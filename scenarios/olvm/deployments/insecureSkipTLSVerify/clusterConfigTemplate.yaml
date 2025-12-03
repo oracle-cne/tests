@@ -15,7 +15,7 @@ providers:
       serverURL: $OLVM_SERVER_URL
       credentialsSecret:
         name: insecureskiptlsverify-creds
-        namespace: olvm-cluster
+        namespace: $OLVM_CLUSTER_NAMESPACE
       insecureSkipTLSVerify: true
     olvmOCK:
       storageDomainName: $OLVM_STORAGE_DOMAIN_NAME

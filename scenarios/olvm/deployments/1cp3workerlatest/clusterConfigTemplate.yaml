@@ -16,10 +16,10 @@ providers:
       serverCAPath: $OLVM_CA_CERT_PATH
       credentialsSecret:
         name: 1cp3workerlatestlatest-creds
-        namespace: olvm-cluster
+        namespace: $OLVM_CLUSTER_NAMESPACE
       caConfigMap:
         name: 1cp3workerlatest-ca
-        namespace: olvm-cluster
+        namespace: $OLVM_CLUSTER_NAMESPACE
       insecureSkipTLSVerify: false
     olvmOCK:
       storageDomainName: $OLVM_STORAGE_DOMAIN_NAME

@@ -16,10 +16,10 @@ providers:
       serverCAPath: $OLVM_CA_CERT_PATH
       credentialsSecret:
         name: scalelatest-creds
-        namespace: olvm-cluster
+        namespace: $OLVM_CLUSTER_NAMESPACE
       caConfigMap:
         name: scalelatest-ca
-        namespace: olvm-cluster
+        namespace: $OLVM_CLUSTER_NAMESPACE
       insecureSkipTLSVerify: false
     olvmOCK:
       storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
