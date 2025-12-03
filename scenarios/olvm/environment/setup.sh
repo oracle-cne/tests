@@ -53,6 +53,11 @@ if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
 	exit 1
 fi
 
+if [ -z "$OCNE_OCK_DISK_NAME" ]; then
+	echo OCNE_OCK_DISK_NAME is not defined
+	exit 1
+fi
+
 if [ -z "$OLVM_NETWORK_NAME" ]; then
 	export OLVM_NETWORK_NAME=vlan
 	echo Defaulting OLVM_NETWORK_NAME to "vlan"

@@ -21,6 +21,10 @@ providers:
         name: 1cp3workerlatest-ca
         namespace: olvm-cluster
       insecureSkipTLSVerify: false
+    olvmOCK:
+      storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
+      diskName: $OCNE_OCK_DISK_NAME
+      diskSize: 20GB
     controlPlaneMachine:
       olvmOvirtClusterName: Default
       vmTemplateName: $OLVM_VM_TEMPLATE
@@ -56,7 +60,7 @@ providers:
             ipAddresses: $OLVM_STARTING_IPV4_ADDRESS_W-$OLVM_ENDING_IPV4_ADDRESS_W
           networkName: $OLVM_NETWORK_NAME
     ovirtCsiDriver:
-      install: false
+      install: true
 extraIgnitionInline: |
   variant: fcos
   version: 1.5.0
