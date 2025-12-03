@@ -24,7 +24,7 @@ providers:
       insecureSkipTLSVerify: false
     controlPlaneMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE_1_30
+      vmTemplateName: $OLVM_VM_TEMPLATE
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME
@@ -41,7 +41,7 @@ providers:
           networkName: $OLVM_NETWORK_NAME
     workerMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE_1_30
+      vmTemplateName: $OLVM_VM_TEMPLATE
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME

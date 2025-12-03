@@ -6,6 +6,10 @@ provider: olvm
 providers:
   olvm:
     namespace: olvm-cluster
+    proxy:
+      httpsProxy: $OLVM_HTTPS_PROXY
+      httpProxy: $OLVM_HTTP_PROXY
+      noProxy: $OLVM_NO_PROXY
     olvmDatacenterName: $OLVM_DATACENTER_NAME
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL
@@ -19,7 +23,7 @@ providers:
       insecureSkipTLSVerify: false
     controlPlaneMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE_1_31
+      vmTemplateName: $OLVM_VM_TEMPLATE
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME
@@ -36,7 +40,7 @@ providers:
           networkName: $OLVM_NETWORK_NAME
     workerMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE_1_31
+      vmTemplateName: $OLVM_VM_TEMPLATE
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME
