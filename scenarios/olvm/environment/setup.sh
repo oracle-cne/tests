@@ -108,6 +108,11 @@ if [ -z "$OLVM_VM_TEMPLATE_1_32" ]; then
 	exit 1
 fi
 
+if [ -z "$OLVM_VM_TEMPLATE_1_33" ]; then
+	echo OLVM_VM_TEMPLATE_1_33 is not defined
+	exit 1
+fi
+
 if [ -z "$NAMESERVER_IP" ]; then
 	echo NAMESERVER_IP is not defined
 	exit 1
