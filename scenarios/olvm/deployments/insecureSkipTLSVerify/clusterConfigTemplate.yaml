@@ -1,4 +1,5 @@
 name: insecureskiptlsverify
+kubernetesVersion: 1.32
 workerNodes: 1
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
@@ -23,7 +24,7 @@ providers:
       diskSize: 20GB
     controlPlaneMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE
+      vmTemplateName: $OLVM_VM_TEMPLATE_1_32
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME
@@ -40,7 +41,7 @@ providers:
           networkName: $OLVM_NETWORK_NAME
     workerMachine:
       olvmOvirtClusterName: Default
-      vmTemplateName: $OLVM_VM_TEMPLATE
+      vmTemplateName: $OLVM_VM_TEMPLATE_1_32
       olvmNetwork:
         networkName: $OLVM_NETWORK_NAME
         vnicName: $OLVM_NETWORK_VNIC_NAME
