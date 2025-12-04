@@ -68,6 +68,11 @@ if [ -z "$OCNE_OCK_DISK_NAME_1_32" ]; then
 	exit 1
 fi
 
+if [ -z "$OCNE_OCK_DISK_NAME_1_33" ]; then
+	echo OCNE_OCK_DISK_NAME_1_33 is not defined
+	exit 1
+fi
+
 if [ -z "$OLVM_NETWORK_NAME" ]; then
 	export OLVM_NETWORK_NAME=vlan
 	echo Defaulting OLVM_NETWORK_NAME to "vlan"
