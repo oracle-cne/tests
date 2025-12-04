@@ -58,8 +58,13 @@ if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
 	exit 1
 fi
 
-if [ -z "$OCNE_OCK_DISK_NAME" ]; then
-	echo OCNE_OCK_DISK_NAME is not defined
+if [ -z "$OCNE_OCK_DISK_NAME_1_31" ]; then
+	echo OCNE_OCK_DISK_NAME_1_31 is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OCK_DISK_NAME_1_32" ]; then
+	echo OCNE_OCK_DISK_NAME_1_32 is not defined
 	exit 1
 fi
 

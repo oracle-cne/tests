@@ -24,7 +24,7 @@ providers:
       insecureSkipTLSVerify: false
     olvmOCK:
       storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
-      diskName: $OCNE_OCK_DISK_NAME
+      diskName: $OCNE_OCK_DISK_NAME_1_32
       diskSize: 20GB
     controlPlaneMachine:
       olvmOvirtClusterName: Default
