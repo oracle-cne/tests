@@ -4,13 +4,13 @@ workerNodes: 3
 controlPlaneNodes: 1
 virtualIp: $OLVM_VIRTUAL_IP
 provider: olvm
+proxy:
+  httpsProxy: $OLVM_HTTPS_PROXY
+  httpProxy: $OLVM_HTTP_PROXY
+  noProxy: $OLVM_NO_PROXY
 providers:
   olvm:
     namespace: $OLVM_CLUSTER_NAMESPACE
-    proxy:
-      httpsProxy: $OLVM_HTTPS_PROXY
-      httpProxy: $OLVM_HTTP_PROXY
-      noProxy: $OLVM_NO_PROXY
     olvmDatacenterName: $OLVM_DATACENTER_NAME
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL

@@ -118,6 +118,20 @@ if [ -z "$OLVM_NO_PROXY" ]; then
 	exit 1
 fi
 
+if [ -z "$OCNE_OLVM_USERNAME" ]; then
+	echo OCNE_OLVM_USERNAME is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OLVM_PASSWORD" ]; then
+	echo OCNE_OLVM_PASSWORD is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OLVM_SCOPE" ]; then
+	echo OCNE_OLVM_SCOPE is not defined
+	exit 1
+fi
 
 # Generate the OLVM configuration files
 TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)
