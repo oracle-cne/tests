@@ -12,10 +12,6 @@ providers:
   olvm:
     namespace: $OLVM_CLUSTER_NAMESPACE
     olvmDatacenterName: $OLVM_DATACENTER_NAME
-    proxy:
-      httpsProxy: $OLVM_HTTPS_PROXY
-      httpProxy: $OLVM_HTTP_PROXY
-      noProxy: $OLVM_NO_PROXY
     olvmOvirtAPIServer:
       serverURL: $OLVM_SERVER_URL
       serverCAPath: $OLVM_CA_CERT_PATH
