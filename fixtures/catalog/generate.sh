@@ -4,11 +4,11 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 set -x
-MAX_KUBE_VERSION="$1"
+MAX_KUBE_VERSION_GEN="$1"
 USE_PODMAN="$2"
 
 MINOR_START=23
-MINOR_END=$(echo "$MAX_KUBE_VERSION" | cut -d. -f2)
+MINOR_END=$(echo "$MAX_KUBE_VERSION_GEN" | cut -d. -f2)
 
 # Bump MINOR_END by 3 so that every version has three threever entry
 MINOR_END=$((MINOR_END + 3))
