@@ -29,7 +29,7 @@ export GOCOVERDIR="$RESULTS/coverage"
 
 export PATH="$(pwd)/tools:$PATH"
 
-export MAX_KUBE_VERSION="1.31"
+export MAX_KUBE_VERSION="1.33"
 
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
