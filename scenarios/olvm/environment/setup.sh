@@ -8,6 +8,11 @@ TESTDIR=./scenarios/olvm
 
 # The OLVM environment variables are either set manually by the local user
 # or by the environment of a build job running the tests.
+if [ -z "$OLVM_CLUSTER_NAMESPACE" ]; then
+	echo OLVM_CLUSTER_NAMESPACE is not defined
+	exit 1
+fi
+
 if [ -z "$OLVM_SERVER_URL" ]; then
 	echo OLVM_SERVER_URL is not defined
 	exit 1
@@ -53,6 +58,21 @@ if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
 	exit 1
 fi
 
+if [ -z "$OCNE_OCK_DISK_NAME_1_31" ]; then
+	echo OCNE_OCK_DISK_NAME_1_31 is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OCK_DISK_NAME_1_32" ]; then
+	echo OCNE_OCK_DISK_NAME_1_32 is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OCK_DISK_NAME_1_33" ]; then
+	echo OCNE_OCK_DISK_NAME_1_33 is not defined
+	exit 1
+fi
+
 if [ -z "$OLVM_NETWORK_NAME" ]; then
 	export OLVM_NETWORK_NAME=vlan
 	echo Defaulting OLVM_NETWORK_NAME to "vlan"
@@ -88,8 +108,13 @@ if [ -z "$OLVM_VM_TEMPLATE_1_31" ]; then
 	exit 1
 fi
 
-if [ -z "$OLVM_VM_TEMPLATE_1_30" ]; then
-	echo OLVM_VM_TEMPLATE_1_30 is not defined
+if [ -z "$OLVM_VM_TEMPLATE_1_32" ]; then
+	echo OLVM_VM_TEMPLATE_1_32 is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_VM_TEMPLATE_1_33" ]; then
+	echo OLVM_VM_TEMPLATE_1_33 is not defined
 	exit 1
 fi
 
@@ -98,6 +123,35 @@ if [ -z "$NAMESERVER_IP" ]; then
 	exit 1
 fi
 
+if [ -z "$OLVM_HTTPS_PROXY" ]; then
+	echo OLVM_HTTPS_PROXY is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_HTTP_PROXY" ]; then
+	echo OLVM_HTTP_PROXY is not defined
+	exit 1
+fi
+
+if [ -z "$OLVM_NO_PROXY" ]; then
+	echo OLVM_NO_PROXY is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OLVM_USERNAME" ]; then
+	echo OCNE_OLVM_USERNAME is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OLVM_PASSWORD" ]; then
+	echo OCNE_OLVM_PASSWORD is not defined
+	exit 1
+fi
+
+if [ -z "$OCNE_OLVM_SCOPE" ]; then
+	echo OCNE_OLVM_SCOPE is not defined
+	exit 1
+fi
 
 # Generate the OLVM configuration files
 TEMPLATES=$(find "$TESTDIR" -name clusterConfigTemplate.yaml)

@@ -1,4 +1,5 @@
 name: scalelatest-mgmt
+kubernetesVersion: 1.33
 provider: libvirt
 headless: true
 controlPlaneNodes: 1
