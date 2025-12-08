@@ -12,6 +12,7 @@ setup_file() {
 }
 
 @test "ocne image create --type ostree" {
+	echo "ocne image create --type ostree --config $CLUSTER_CONFIG"
 	run -0 ocne image create --type ostree --config "$CLUSTER_CONFIG"
 	img=$(echo "$output" | grep "Saved image to" | awk '{print $NF}' | tr -d '"')
 	if [ ! -f $img ]; then
@@ -23,6 +24,7 @@ setup_file() {
 }
 
 @test "ocne image create -a arm64 and amd64" {
+	echo "ocne image create -a $arch --config $CLUSTER_CONFIG"
 	for arch in amd64 arm64; do
 		run -0 ocne image create -a $arch --config "$CLUSTER_CONFIG"
 		img=$(echo "$output" | tail -n1 | awk '{print $NF}' | tr -d '"')
@@ -36,6 +38,7 @@ setup_file() {
 }
 
 @test "ocne image create --type  olvm" {
+	echo "ocne image create --type olvm --config $CLUSTER_CONFIG"
 	run -0 ocne image create --type olvm --config "$CLUSTER_CONFIG"
 	img=$(echo "$output" | grep "Saved image to" | awk '{print $NF}' | tr -d '"')
 	if [ ! -f $img ]; then
