@@ -39,7 +39,7 @@ waitFor() {
 			return 0
 		fi
 
-		sleep 12
+		sleep 9
 	done
 
 	false
@@ -52,7 +52,7 @@ waitForNoNodesSchedulingDisabled() {
 			if [ $? -eq 0 ]; then
 					return 0
 			fi
-			sleep 10
+			sleep 8
 	done
 
 	false
@@ -89,7 +89,8 @@ doNodeUpgrade() {
 		run -0 kubectl get node -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.annotations}{"\n"}{end}'
 		echo "node annotations are are $output"
 
-		run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		#run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		run --separate-stderr bats_pipe ocne cluster info \| grep -e 'control plane.*v1.*true$' -e 'worker.*v1.*true$'
 		UPDATES="$output"
 		NUM_UPDATES=$(echo -n "$UPDATES" | wc -l)
 		echo "updates: $UPDATES"
@@ -119,7 +120,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 11
 		done
 
 		# Sometimes the NoSchedule taint gets stuck if the kube-apiserver
@@ -144,7 +145,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 12
 		done
 	done
 
@@ -162,11 +163,11 @@ doCapiUpgrade() {
 
 	# get patches
 	echo "$STAGE_OUT"
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
 	cpPatch="$output"
 	echo "$cpPatch"
 
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
 	workerPatches="$output"
 	echo "$workerPatches"
 
@@ -237,7 +238,7 @@ doCapiUpgrade() {
 			export KUBECONFIG="$MGMT_KUBECONFIG"
 			return 0
 		fi
-		sleep 10
+		sleep 13
 	done
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 	false
@@ -321,6 +322,25 @@ stageOlvm() {
 
 @test "Basic Kubernetes Tests for 1.31" {
 	doSkip 1.31
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.32" {
+	doUpgrade 1.32
+}
+
+@test "Basic Kubernetes Tests for 1.32" {
+	doSkip 1.32
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+@test "Upgrade to 1.33" {
+	doUpgrade 1.33
+}
+
+@test "Basic Kubernetes Tests for 1.33" {
+	doSkip 1.33
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }

@@ -10,6 +10,7 @@ export STUB_ARM_IMAGE="armImageStub"
 bats_require_minimum_version 1.5.0
 
 setup_oci() {
+	export OCI_CAPI=true
 	run -0 yq -e .compartment "$INFO"
 	export CAPI_RESOURCES="$TEST_DIR_CURRENT/$(yq .clusterDefinition "$CLUSTER_CONFIG")"
 	export PARENT="$output"
@@ -17,7 +18,7 @@ setup_oci() {
 	echo Parent compartment is "$PARENT"
 	echo New compartment is "$CHILD"
 
-	run -0 yq -e .providers.oci.bucketName "$CLUSTER_CONFIG"
+	run -0 yq -e .providers.oci.imageBucket "$CLUSTER_CONFIG"
 	export BUCKET="$output"
 	echo Bucket is "$BUCKET"
 
@@ -44,7 +45,7 @@ setup_oci() {
 		run grep -e "$X86_IMAGE_ORIG" "$CAPI_RESOURCES"
 		if [ "$status" -eq 0 ]; then
 			ocne image create --arch amd64 --version "$KUBE_VERSION"
-			run -0 ocne image upload --arch amd64 --version "$KUBE_VERSION" --compartment "$COMPARTMENT_ID" --file "~/.ocne/images/boot.qcow2-$KUBE_VERSION-amd64.oci"
+			run -0 ocne image upload --arch amd64 --version "$KUBE_VERSION" --compartment "$COMPARTMENT_ID" --bucket "$BUCKET" --file "~/.ocne/images/boot.qcow2-$KUBE_VERSION-amd64.oci"
 			echo "$output"
 			run -0 grep --only-matching -e 'ocid1.image.[a-zA-Z0-9.]*' <(echo "$output")
 			export X86_IMAGE="$output"
@@ -56,7 +57,7 @@ setup_oci() {
 		run grep -e "$ARM_IMAGE_ORIG" "$CAPI_RESOURCES"
 		if [ "$status" -eq 0 ]; then
 			ocne image create --arch arm64 --version "$KUBE_VERSION"
-			run -0 ocne image upload --arch arm64 --version "$KUBE_VERSION" --compartment "$COMPARTMENT_ID" --file "~/.ocne/images/boot.qcow2-$KUBE_VERSION-arm64.oci"
+			run -0 ocne image upload --arch arm64 --version "$KUBE_VERSION" --compartment "$COMPARTMENT_ID" --bucket "$BUCKET" --file "~/.ocne/images/boot.qcow2-$KUBE_VERSION-arm64.oci"
 			run -0 grep --only-matching -e 'ocid1.image.[a-zA-Z0-9.]*' <(echo "$output")
 			export ARM_IMAGE="$output"
 			echo sed -i -e "s/${ARM_IMAGE_ORIG}/${ARM_IMAGE}/g" "$CAPI_RESOURCES"
@@ -196,7 +197,12 @@ teardown_suite() {
 
 	if [ -n "$MGMT_KUBECONFIG" ]; then
 		unset KUBECONFIG
-		ocne cluster delete -c "$MGMT_CONFIG"
+		run stat "$MGMT_CONFIG"
+		if [ "$status" -eq 0 ]; then
+			ocne cluster delete -C "$MGMT_NAME" -c "$MGMT_CONFIG"
+		else
+			ocne cluster delete -C "$MGMT_NAME"
+		fi
 	fi
 
 	run yq .preserve "$INFO"
