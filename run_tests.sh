@@ -44,7 +44,6 @@ esac
 
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
-
 set -x
 for TEST_DIR in $TESTS; do
 	export INFO="$TEST_DIR/info.yaml"
