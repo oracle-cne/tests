@@ -21,7 +21,7 @@ providers:
     olvmOCK:
       storageDomainName: $OLVM_STORAGE_DOMAIN_NAME
       diskName: $OCNE_OCK_DISK_NAME_1_32
-      diskSize: 20GB
+      diskSize: 40GB
     controlPlaneMachine:
       olvmOvirtClusterName: Default
       vmTemplateName: $OLVM_VM_TEMPLATE_1_32
