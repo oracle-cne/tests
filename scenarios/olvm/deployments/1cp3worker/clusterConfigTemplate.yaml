@@ -52,9 +52,6 @@ providers:
         vnicProfileName: $OLVM_NETWORK_NAME
       virtualMachine:
         memory: "16GB"
-        cpu:
-          topology:
-            cores: 6
         network:
           gateway: $OLVM_NETWORK_GATEWAY_IP
           interface: $OLVM_NETWORK_INTERFACE
