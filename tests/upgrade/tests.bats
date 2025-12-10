@@ -269,46 +269,6 @@ stageOlvm() {
 	ocne cluster show -C $(yq -e .name $CLUSTER_CONFIG) -f "config.providers.olvm"
 }
 
-@test "Basic Kubernetes Tests for 1.26" {
-	doSkip 1.26
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
-
-@test "Upgrade to 1.27" {
-	doUpgrade 1.27
-}
-
-@test "Basic Kubernetes Tests for 1.27" {
-	doSkip 1.27
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
-
-@test "Upgrade to 1.28" {
-	doUpgrade 1.28
-}
-
-@test "Basic Kubernetes Tests for 1.28" {
-	doSkip 1.28
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
-
-@test "Upgrade to 1.29" {
-	doUpgrade 1.29
-}
-
-@test "Basic Kubernetes Tests for 1.29" {
-	doSkip 1.29
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
-
-@test "Upgrade to 1.30" {
-	doUpgrade 1.30
-}
-
 @test "Basic Kubernetes Tests for 1.30" {
 	doSkip 1.30
 	export KUBECONFIG="$TARGET_KUBECONFIG"
@@ -321,6 +281,46 @@ stageOlvm() {
 
 @test "Basic Kubernetes Tests for 1.31" {
 	doSkip 1.31
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.32" {
+	doUpgrade 1.32
+}
+
+@test "Basic Kubernetes Tests for 1.32" {
+	doSkip 1.32
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.33" {
+	doUpgrade 1.33
+}
+
+@test "Basic Kubernetes Tests for 1.33" {
+	doSkip 1.33
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.34" {
+	doUpgrade 1.34
+}
+
+@test "Basic Kubernetes Tests for 1.34" {
+	doSkip 1.34
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.35" {
+	doUpgrade 1.35
+}
+
+@test "Basic Kubernetes Tests for 1.35" {
+	doSkip 1.35
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }
