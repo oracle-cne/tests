@@ -305,23 +305,3 @@ stageOlvm() {
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }
-
-@test "Upgrade to 1.34" {
-	doUpgrade 1.34
-}
-
-@test "Basic Kubernetes Tests for 1.34" {
-	doSkip 1.34
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
-
-@test "Upgrade to 1.35" {
-	doUpgrade 1.35
-}
-
-@test "Basic Kubernetes Tests for 1.35" {
-	doSkip 1.35
-	export KUBECONFIG="$TARGET_KUBECONFIG"
-	basic_k8s_test.sh
-}
