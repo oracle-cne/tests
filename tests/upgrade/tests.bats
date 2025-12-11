@@ -256,8 +256,9 @@ stageOlvm() {
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 
 	case "$TGT" in
-	1.30 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_30" ;;
 	1.31 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_31" ;;
+	1.32 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_32" ;;
+	1.33 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_33" ;;
 	*) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
 	esac
 
