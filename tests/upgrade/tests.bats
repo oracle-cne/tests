@@ -256,8 +256,9 @@ stageOlvm() {
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 
 	case "$TGT" in
-	1.30 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_30" ;;
 	1.31 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_31" ;;
+	1.32 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_32" ;;
+	1.33 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_33" ;;
 	*) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
 	esac
 
@@ -321,6 +322,26 @@ stageOlvm() {
 
 @test "Basic Kubernetes Tests for 1.31" {
 	doSkip 1.31
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.32" {
+	doUpgrade 1.32
+}
+
+@test "Basic Kubernetes Tests for 1.32" {
+	doSkip 1.32
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.33" {
+	doUpgrade 1.33
+}
+
+@test "Basic Kubernetes Tests for 1.33" {
+	doSkip 1.33
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }
