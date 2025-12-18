@@ -78,6 +78,7 @@ for TEST_DIR in $TESTS; do
 	export MGMT_CONFIG="$TEST_DIR/managementConfig.yaml"
 	export CASE_NAME=$(basename "$TEST_DIR")
 
+	export BATS_TEST_NAME_PREFIX="${CASE_NAME}: "
 	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --print-output-on-failure --recursive $(echo $TEST_GROUPS) | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
 done
 

@@ -32,7 +32,7 @@ export KUBECONFIG=$(ocne cluster show -C "$CLUSTER_NAME")
 
 
 # Sleep for a bit to let networking shake out
-sleep 60s
+sleep 180s
 
 # Install the default applications
 ocne cluster start -c "$CLUSTER_CONFIG" --auto-start-ui=false

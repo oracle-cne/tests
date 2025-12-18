@@ -1,6 +1,7 @@
 name: byo-3worker
 provider: byo
 workerNodes: 3
+kubernetesVersion: 1.31
 virtualIp: 192.168.122.230
 providers:
   byo:

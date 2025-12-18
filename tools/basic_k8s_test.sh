@@ -6,7 +6,7 @@
 # Allow for this script to be ran from anywhere
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REGISTRY="container-registry.oracle.com"
-NGINX_IMAGE="nginx:1.17.7-1"
+NGINX_IMAGE=$(kubectl get node -o 'jsonpath={.items[*].status.images[*].names[*]}' | tr ' ' '\n' | grep 'nginx:[0-1]' | sort -r | uniq | head -1)
 RUN_SNO=0
 UNSET_PROXY=0         # If enabled, proxy can block curl requests.  Unset if necessary, i.e. set to '1'.
 
@@ -193,7 +193,7 @@ spec:
         spec:
             containers:
             - name: nginx
-              image: container-registry.oracle.com/olcne/${NGINX_IMAGE}
+              image: ${NGINX_IMAGE}
               ports:
               - containerPort: 80
               volumeMounts:
