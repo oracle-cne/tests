@@ -71,6 +71,24 @@ doUpgrade() {
 	esac
 }
 
+uploadArchive() {
+	NODE="$1"
+	TGT="$2"
+	TARGET="$3"
+
+	if [ -z "$TARGET" ]; then
+		return 0
+	fi
+
+	run bats_pipe echo "$OSTREE_IMAGES" \| yq ".\"$TGT\" // \"\""
+	IMAGE="$output"
+	if [ -z "$IMAGE" ]; then
+		return 0
+	fi
+
+	bats_pipe podman image save --format oci-archive "$IMAGE" \| ocne cluster console --direct --node "$NODE" -- sh -c "cat > $TARGET"
+}
+
 doNodeUpgrade() {
 	TGT="$1"
 
@@ -85,6 +103,10 @@ doNodeUpgrade() {
 
 	run -0 kubectl get nodes -l '!node-role.kubernetes.io/control-plane' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	WORKER_NODES="$output"
+
+	for n in $CP_NODES $WORKER_NODES; do
+		uploadArchive "$n" "$TGT" "$OSTREE_ARCHIVE"
+	done
 
 	# Wait for updates to be available
 	for i in $(seq 1 100); do
