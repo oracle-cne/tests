@@ -96,7 +96,8 @@ doNodeUpgrade() {
 
 	run -0 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	NODES="$output"
-	NUM_NODES=$(echo -n "$NODES" | wc -l)
+	NUM_NODES=$(echo -n "$NODES" | wc -w)
+	echo "num nodes: $NUM_NODES"
 
 	run -0 kubectl get nodes -l 'node-role.kubernetes.io/control-plane' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	CP_NODES="$output"
@@ -114,10 +115,10 @@ doNodeUpgrade() {
 		echo "node annotations are are $output"
 
 		#run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
-		run --separate-stderr bats_pipe ocne cluster info \| grep -e 'control plane.*v1.*true$' -e 'worker.*v1.*true$'
+		ocne cluster info
+		run --separate-stderr bats_pipe ocne cluster info \| grep -e 'control plane.*v1.*true$' -e 'worker.*v1.*true$' \| tr -d ' \t'
 		UPDATES="$output"
-		NUM_UPDATES=$(echo -n "$UPDATES" | wc -l)
-		echo "updates: $UPDATES"
+		NUM_UPDATES=$(echo -n "$UPDATES" | wc -w)
 		echo "$NUM_UPDATES" = "$NUM_NODES"
 
 		if [ "$NUM_UPDATES" = "$NUM_NODES" ]; then
