@@ -1,0 +1,6 @@
+name: 3worker-secureboot-smm
+workerNodes: 3
+providers:
+  libvirt:
+    smm: true
+    secureBoot: true

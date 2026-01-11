@@ -1,0 +1,5 @@
+name: 3worker-secureboot
+workerNodes: 3
+providers:
+  libvirt:
+    secureBoot: true
