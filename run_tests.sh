@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 #
 # Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
@@ -32,6 +32,7 @@ mkdir -p "$RESULTS"
 mkdir -p "$GOCOVERDIR"
 mkdir -p "$MERGED_COVERAGE_DIR"
 
+
 export PATH="$(pwd)/tools:$PATH"
 
 export MAX_KUBE_VERSION="1.33"
@@ -42,6 +43,7 @@ case "$FORMAT" in
 	* ) SUFFIX=out;;
 esac
 
+echo $REGISTRY_AUTH_FILE
 ./tools/start-test-catalog.sh "$MAX_KUBE_VERSION" "$USE_PODMAN"
 
 set -x
