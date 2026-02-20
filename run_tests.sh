@@ -84,7 +84,9 @@ for TEST_DIR in $TESTS; do
 	bats --formatter "$FORMAT" --output "$RESULTS"  --setup-suite-file tests/setup/setup --trace --print-output-on-failure --recursive $(echo $TEST_GROUPS) | tee "${RESULTS}/${CASE_NAME}.${SUFFIX}"
 done
 
+echo "REGISTRY_AUTH_FILE $REGISTRY_AUTH_FILE"
 ./tools/stop-test-catalog.sh "$USE_PODMAN"
+echo "DONE NOW"
 
 go tool covdata merge -i="$GOCOVERDIR" -o="$MERGED_COVERAGE_DIR"
 go tool covdata textfmt -i="$MERGED_COVERAGE_DIR" -o="$COVERAGE"
