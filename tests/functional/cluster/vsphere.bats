@@ -40,7 +40,7 @@ kubeApiServerBindPort: 6443
 podSubnet: 10.244.0.0/16
 serviceSubnet: 10.96.0.0/12
 EOF
-  ocne cluster template -c "${tmpcfg}"
+  ocne cluster template --provider vsphere -c "${tmpcfg}"
   rm -f "${tmpcfg}"
 }
 
