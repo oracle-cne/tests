@@ -33,6 +33,7 @@ teardown() {
 # Helper to run ocne cluster template for vsphere with injected yaml snippet
 template_vsphere() {
   local yaml_snippet="$1"
+  local cluster_overrides="$2" # extra cluster-level overrides
   local tmpcfg
   tmpcfg=$(mktemp)
   cat >"${tmpcfg}" <<EOF
@@ -47,6 +48,7 @@ kubernetesVersion: v1.29.0
 kubeApiServerBindPort: 6443
 podSubnet: 10.244.0.0/16
 serviceSubnet: 10.96.0.0/12
+${cluster_overrides}
 EOF
   ocne cluster template --provider vsphere -c "${tmpcfg}"
   rm -f "${tmpcfg}"
