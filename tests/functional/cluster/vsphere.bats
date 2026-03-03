@@ -19,7 +19,9 @@ teardown() {
 # Helper to run ocne cluster template for vsphere with injected yaml snippet
 template_vsphere() {
   local yaml_snippet="$1"
-  ocne cluster template <<EOF
+  local tmpcfg
+  tmpcfg=$(mktemp)
+  cat >"${tmpcfg}" <<EOF
 clusterName: ${CLUSTER_NAME}
 provider: vsphere
 providers:
@@ -32,15 +34,12 @@ kubeApiServerBindPort: 6443
 podSubnet: 10.244.0.0/16
 serviceSubnet: 10.96.0.0/12
 EOF
+  ocne cluster template -c "${tmpcfg}"
+  rm -f "${tmpcfg}"
 }
 
 @test "vsphere validation: fails when controlPlaneNodes is even" {
-  run ocne cluster template <<EOF
-clusterName: ${CLUSTER_NAME}
-provider: vsphere
-providers:
-  vsphere:
-    server: vcenter.local
+  run template_vsphere "    server: vcenter.local
     datacenter: dc
     network: net
     datastore: ds
@@ -51,24 +50,13 @@ providers:
     password: pass
     namespace: ns
     controlPlaneEndpoint: 1.2.3.4
-controlPlaneNodes: 2
-workerNodes: 1
-kubernetesVersion: v1.29.0
-kubeApiServerBindPort: 6443
-podSubnet: 10.244.0.0/16
-serviceSubnet: 10.96.0.0/12
-EOF
+controlPlaneNodes: 2"
   [ "$status" -ne 0 ]
   echo "$output" | grep -qi "odd"
 }
 
 @test "vsphere validation: fails when kubernetesVersion missing" {
-  run ocne cluster template <<EOF
-clusterName: ${CLUSTER_NAME}
-provider: vsphere
-providers:
-  vsphere:
-    server: vcenter.local
+  run template_vsphere "    server: vcenter.local
     datacenter: dc
     network: net
     datastore: ds
@@ -79,23 +67,15 @@ providers:
     password: pass
     namespace: ns
     controlPlaneEndpoint: 1.2.3.4
-controlPlaneNodes: 1
-workerNodes: 1
 kubeApiServerBindPort: 6443
 podSubnet: 10.244.0.0/16
-serviceSubnet: 10.96.0.0/12
-EOF
+serviceSubnet: 10.96.0.0/12"
   [ "$status" -ne 0 ]
   echo "$output" | grep -qi "kubernetesVersion is required"
 }
 
 @test "vsphere validation: fails when kubeApiServerBindPort is 0" {
-  run ocne cluster template <<EOF
-clusterName: ${CLUSTER_NAME}
-provider: vsphere
-providers:
-  vsphere:
-    server: vcenter.local
+  run template_vsphere "    server: vcenter.local
     datacenter: dc
     network: net
     datastore: ds
@@ -106,13 +86,8 @@ providers:
     password: pass
     namespace: ns
     controlPlaneEndpoint: 1.2.3.4
-controlPlaneNodes: 1
-workerNodes: 1
 kubernetesVersion: v1.29.0
-kubeApiServerBindPort: 0
-podSubnet: 10.244.0.0/16
-serviceSubnet: 10.96.0.0/12
-EOF
+kubeApiServerBindPort: 0"
   [ "$status" -ne 0 ]
   echo "$output" | grep -qi "kubeApiServerBindPort"
 }
