@@ -5,8 +5,6 @@
 #
 # bats file_tags=CLUSTER,CLUSTER_VSPHERE
 
-load "${BATS_TEST_DIRNAME}/../helpers/common.bash" || true
-
 setup() {
   # Minimal common vars; adjust if the harness exports cluster/env defaults
   export CLUSTER_NAME="vsphere-test"
