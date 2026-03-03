@@ -10,21 +10,11 @@ setup() {
   export CLUSTER_NAME="vsphere-test"
   export KUBECONFIG="${BATS_TMPDIR}/kubeconfig"
 
-  # Optional: checkout a specific OCNE CLI branch before running
+  # Optional: checkout a specific OCNE CLI branch before running (assumes caller builds/publishes ocne separately)
   if [ -n "${OCNE_CLI_BRANCH:-}" ]; then
     local ocne_repo="${OCNE_REPO_DIR:-$(pwd)/../ocne}"
     git -C "${ocne_repo}" fetch origin "${OCNE_CLI_BRANCH}" || true
     git -C "${ocne_repo}" checkout "${OCNE_CLI_BRANCH}"
-
-    # Build ocne from this branch and prepend to PATH
-    if [ "${OCNE_CLI_BRANCH}" != "main" ]; then
-      local ocne_bin_dir="${ocne_repo}/out/$(uname | tr 'A-Z' 'a-z')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
-      if [ ! -x "${ocne_bin_dir}/ocne" ]; then
-        (cd "${ocne_repo}" && make build-cli)
-      fi
-      export OCNE_BIN="${ocne_bin_dir}/ocne"
-      export PATH="${ocne_bin_dir}:${PATH}"
-    fi
   fi
 }
 
