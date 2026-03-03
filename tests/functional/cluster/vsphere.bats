@@ -14,6 +14,12 @@ setup() {
   if [ -n "${OCNE_CLI_BRANCH:-}" ]; then
     git -C "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" fetch origin "${OCNE_CLI_BRANCH}" || true
     git -C "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" checkout "${OCNE_CLI_BRANCH}"
+
+    # Build ocne from this branch and prepend to PATH
+    if [ "${OCNE_CLI_BRANCH}" != "main" ]; then
+      (cd "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" && make build)
+      export PATH="${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}/bin:${PATH}"
+    fi
   fi
 }
 
