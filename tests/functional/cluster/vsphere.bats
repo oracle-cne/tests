@@ -17,8 +17,8 @@ setup() {
 
     # Build ocne from this branch and prepend to PATH
     if [ "${OCNE_CLI_BRANCH}" != "main" ]; then
-      (cd "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" && make build)
-      export PATH="${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}/bin:${PATH}"
+      (cd "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" && make build-cli)
+      export PATH="${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}/out/$(uname | tr 'A-Z' 'a-z')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/'):${PATH}"
     fi
   fi
 }
