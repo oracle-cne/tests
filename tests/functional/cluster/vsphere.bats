@@ -165,17 +165,25 @@ kubeApiServerBindPort: 0"
 }
 
 @test "vsphere validation: succeeds with minimal required fields" {
-  run template_vsphere "    server: vcenter.local
-    datacenter: dc
-    network: net
-    datastore: ds
-    resourcePool: rp
-    folder: folder
-    template: tpl
-    namespace: ns
-    username: user
-    password: pass
-    controlPlaneEndpoint: 1.2.3.4"
+  # Use fixture as a template and substitute placeholders to avoid inline secrets here
+  local tmpcfg
+  tmpcfg=$(mktemp)
+  cp "${BATS_TEST_DIRNAME}/../../fixtures/vsphere/clusterConfig.yaml" "${tmpcfg}"
+  # Basic dummy substitutions so the template renders; replace with real values in env to do an end-to-end run
+  sed -i '' "s|<CLUSTER_NAME>|${CLUSTER_NAME}|g" "${tmpcfg}"
+  sed -i '' 's|<VCENTER_SERVER>|vcenter.local|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_DATACENTER>|dc|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_NETWORK>|net|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_DATASTORE>|ds|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_RESOURCE_POOL>|rp|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_FOLDER>|folder|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_TEMPLATE>|tpl|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_USERNAME>|user|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_PASSWORD>|pass|g' "${tmpcfg}"
+  sed -i '' 's|<VCENTER_NAMESPACE>|ns|g' "${tmpcfg}"
+  sed -i '' 's|<CONTROL_PLANE_ENDPOINT>|1.2.3.4|g' "${tmpcfg}"
+  run ocne cluster template --provider vsphere -c "${tmpcfg}"
+  rm -f "${tmpcfg}"
   [ "$status" -eq 0 ]
   echo "$output" | grep -q "VSphereCluster"
   echo "$output" | grep -q "KubeadmControlPlane"
