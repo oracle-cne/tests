@@ -9,6 +9,12 @@ setup() {
   # Minimal common vars; adjust if the harness exports cluster/env defaults
   export CLUSTER_NAME="vsphere-test"
   export KUBECONFIG="${BATS_TMPDIR}/kubeconfig"
+
+  # Optional: checkout a specific OCNE CLI branch before running
+  if [ -n "${OCNE_CLI_BRANCH:-}" ]; then
+    git -C "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" fetch origin "${OCNE_CLI_BRANCH}" || true
+    git -C "${OCNE_REPO_DIR:-/Users/fmaldona/workspace/ocne}" checkout "${OCNE_CLI_BRANCH}"
+  fi
 }
 
 teardown() {
