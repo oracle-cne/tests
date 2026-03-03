@@ -168,7 +168,7 @@ kubeApiServerBindPort: 0"
   # Use fixture as a template and substitute placeholders to avoid inline secrets here
   local tmpcfg
   tmpcfg=$(mktemp)
-  cp "${BATS_TEST_DIRNAME}/../../fixtures/vsphere/clusterConfig.yaml" "${tmpcfg}"
+  cp "${BATS_TEST_DIRNAME}/../../../fixtures/vsphere/clusterConfig.yaml" "${tmpcfg}"
   # Basic dummy substitutions so the template renders; replace with real values in env to do an end-to-end run
   sed -i '' "s|<CLUSTER_NAME>|${CLUSTER_NAME}|g" "${tmpcfg}"
   sed -i '' 's|<VCENTER_SERVER>|vcenter.local|g' "${tmpcfg}"
