@@ -3,6 +3,8 @@
 # Copyright (c) 2019, 2025, Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
+set -x
+
 # Allow for this script to be ran from anywhere
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REGISTRY="container-registry.oracle.com"
