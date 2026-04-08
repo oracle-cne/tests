@@ -239,6 +239,7 @@ function waitForPod {
 
 		for _ in $(seq 5); do
 				kubectl wait po --for="${action}" -l "${labelSelector}" --timeout=5m && break
+				kubectl get pod -l "${labelSelector}" -o yaml
 
 				sleep 30
 		done
