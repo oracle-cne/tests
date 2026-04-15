@@ -144,10 +144,6 @@ setup_suite() {
 		skip "Test explicitly skipped"
 	fi
 
-	run -0 yq -e .version "$INFO"
-	export KUBE_VERSION="$output"
-	[ -n "$KUBE_VERSION" ]
-
 	run -0 yq -e .provider "$INFO"
 	export PROVIDER="$output"
 	case "$PROVIDER" in
@@ -167,6 +163,10 @@ setup_suite() {
 	run -0 ocne cluster show -C "$CLUSTER_NAME"
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
+
+	run -0 ocne cluster show -C "$CLUSTER_NAME" -f config.kubernetesVersion
+	export KUBE_VERSION="$output"
+	[ -n "$KUBE_VERSION" ]
 
 	export BATS_TEST_NAME_PREFIX="${BATS_TEST_NAME_PREFIX}${PROVIDER} ${KUBE_VERSION}: "
 
