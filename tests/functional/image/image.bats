@@ -12,7 +12,8 @@ setup_file() {
 }
 
 @test "ocne image create --type ostree" {
-	run -0 ocne image create --type ostree
+	echo "ocne image create --type ostree --config $CLUSTER_CONFIG"
+	run -0 ocne image create --type ostree --config "$CLUSTER_CONFIG"
 	img=$(echo "$output" | grep "Saved image to" | awk '{print $NF}' | tr -d '"')
 	if [ ! -f $img ]; then
 		echo "missing image file $img"
@@ -28,7 +29,7 @@ setup_file() {
 	fi
 
 	for arch in amd64 arm64; do
-		run -0 ocne image create -a $arch
+		run -0 ocne image create -a $arch --config "$CLUSTER_CONFIG"
 		img=$(echo "$output" | tail -n1 | awk '{print $NF}' | tr -d '"')
 		if [ ! -f $img ]; then
 			echo "missing image file $img"
@@ -44,7 +45,8 @@ setup_file() {
 		error "Image create is broken for Cluster API on OCI due to xfs-admin hanging"
 	fi
 
-	run -0 ocne image create --type olvm
+	echo "ocne image create --type olvm --config $CLUSTER_CONFIG"
+	run -0 ocne image create --type olvm --config "$CLUSTER_CONFIG"
 	img=$(echo "$output" | grep "Saved image to" | awk '{print $NF}' | tr -d '"')
 	if [ ! -f $img ]; then
 		echo "missing image file $img"
