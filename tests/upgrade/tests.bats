@@ -8,6 +8,13 @@ bats_require_minimum_version 1.5.0
 doSkip() {
 	TGT="$1"
 
+	if [ "$TGT" = "$KUBE_VERSION" ]; then
+		if [ -z "$UPGRADE_SAME_MINOR" ]; then
+			skip "$KUBE_VERSION is $TGT and upgrading the same minor version is not enabled"
+		fi
+		return 0
+	fi
+
 	verList=$((echo "$TGT"; echo "$KUBE_VERSION") | sort -r -V)
 	if [ "$(echo "$verList" | head -1)" = "$KUBE_VERSION" ]; then
 		skip "$KUBE_VERSION is later than $TGT"
