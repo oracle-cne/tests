@@ -99,7 +99,10 @@ uploadArchive() {
 doNodeUpgrade() {
 	TGT="$1"
 
-	run -0 ocne cluster stage --version "$TGT"
+	# Skip stage if doing the same minor version
+	if [ "$TGT" != "$KUBE_VERSION" ]; then
+		run -0 ocne cluster stage --version "$TGT"
+	fi
 
 	run -0 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	NODES="$output"
