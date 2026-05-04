@@ -24,7 +24,10 @@ setup_file() {
 }
 
 @test "ocne image create -a arm64 and amd64" {
-	echo "ocne image create -a $arch --config $CLUSTER_CONFIG"
+	if [ "$OCI_CAPI" == true ]; then
+		error "Image create is broken for Cluster API on OCI due to xfs-admin hanging"
+	fi
+
 	for arch in amd64 arm64; do
 		run -0 ocne image create -a $arch --config "$CLUSTER_CONFIG"
 		img=$(echo "$output" | tail -n1 | awk '{print $NF}' | tr -d '"')
@@ -38,6 +41,10 @@ setup_file() {
 }
 
 @test "ocne image create --type  olvm" {
+	if [ "$OCI_CAPI" == true ]; then
+		error "Image create is broken for Cluster API on OCI due to xfs-admin hanging"
+	fi
+
 	echo "ocne image create --type olvm --config $CLUSTER_CONFIG"
 	run -0 ocne image create --type olvm --config "$CLUSTER_CONFIG"
 	img=$(echo "$output" | grep "Saved image to" | awk '{print $NF}' | tr -d '"')

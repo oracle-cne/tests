@@ -1,7 +1,8 @@
-name: byo-3worker
+name: byo-3cp3worker
 provider: byo
+controlPlaneNodes: 3
 workerNodes: 3
-kubernetesVersion: 1.31
+kubernetesVersion: 1.32
 virtualIp: 192.168.122.230
 providers:
   byo:

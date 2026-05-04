@@ -12,6 +12,11 @@ create_node() {
 	MODE="$1"
 	NAME="$2"
 
+	ARGS=
+	if echo "$NAME" | grep control-plane && [ "$MODE" == "join" ]; then
+		ARGS="--role-control-plane"
+	fi
+
 	cat > "${NAME}.but" << EOF
 variant: fcos
 version: 1.5.0
@@ -22,7 +27,7 @@ storage:
       inline: ${NAME}
 EOF
 	yq ".extraIgnition = \"${NAME}.but\"" < "$CLUSTER_CONFIG" > "${NAME}.cc.yaml"
-	ocne cluster "$MODE" -c "${NAME}.cc.yaml" > "${NAME}.ign"
+	ocne cluster "$MODE" $ARGS -c "${NAME}.cc.yaml" > "${NAME}.ign"
 	create_domain "$NAME" "${NAME}.ign"
 }
 
@@ -32,10 +37,14 @@ export KUBECONFIG=$(ocne cluster show -C "$CLUSTER_NAME")
 
 
 # Sleep for a bit to let networking shake out
-sleep 180s
+sleep 60s
 
 # Install the default applications
 ocne cluster start -c "$CLUSTER_CONFIG" --auto-start-ui=false
+
+create_node join "${CLUSTER_NAME}-control-plane-2"
+sleep 90s
+create_node join "${CLUSTER_NAME}-control-plane-3"
 
 # join some worker nodes
 create_node join "${CLUSTER_NAME}-worker-1"

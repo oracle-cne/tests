@@ -2,7 +2,7 @@
 set -e
 set -x
 
-EXCEPTION='container-registry.oracle.com/olcne/nginx:1.17.7-1 container-registry.oracle.com/olcne/pause:3.10 container-registry.oracle.com/olcne/pause:3.9'
+EXCEPTION='container-registry.oracle.com/olcne/nginx:1.17.7-1 container-registry.oracle.com/olcne/nginx:1.24.0 container-registry.oracle.com/olcne/nginx:1.26.3   container-registry.oracle.com/olcne/pause:3.10 container-registry.oracle.com/olcne/pause:3.9'
 
 BASE_INSPECT="$(podman image inspect container-registry.oracle.com/os/oraclelinux:8)"
 BASE_LAYER=$(echo "$BASE_INSPECT" | yq '.[].RootFS.Layers[0]')

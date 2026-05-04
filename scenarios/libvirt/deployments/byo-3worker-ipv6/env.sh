@@ -4,7 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 export POOL=images
-export VOLUME=boot.qcow2-1.31
+export VOLUME=boot.qcow2-$(yq '.kubernetesVersion' clusterConfig.yaml)
 export INIT_IGN=init.ign
 export JOIN_IGN=join.ign
 
