@@ -17,22 +17,10 @@
 	echo "$output" | grep 'repository:'
 }
 
-@test "Generating a template in interactive mode emits reasonable information" {
-	SUFFIX=$RANDOM
-	TEMPLATE_OUTPUT_SCRIPT=$HOME/template_output-$SUFFIX.sh
-	TEMPLATE_OUTPUT=$HOME/template_output_$SUFFIX
+@test "Setting EDITOR to a bad value causes an error" {
+	export EDITOR="thishsouldfail"
 
-	cat > $TEMPLATE_OUTPUT_SCRIPT << EOF
-#! /usr/bin/env bash
-cat \$1 > $TEMPLATE_OUTPUT
-EOF
-	chmod +x $TEMPLATE_OUTPUT_SCRIPT
-	export EDITOR=$TEMPLATE_OUTPUT_SCRIPT
+	run -1 --separate-stderr ocne application template --interactive --name grafana
+	echo "$stderr" | grep 'Allowed editors: vim, vi, nano, emacs'
 
-	run ocne application template --interactive --name grafana
-	[ $status -eq 0 ]
-	echo "$output" | grep -v 'repository:'
-	grep 'repository' $TEMPLATE_OUTPUT
-
-	rm $TEMPLATE_OUTPUT_SCRIPT
 }

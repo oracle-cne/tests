@@ -3,8 +3,17 @@
 # Copyright (c) 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+bats_require_minimum_version 1.5.0
+
 doSkip() {
 	TGT="$1"
+
+	if [ "$TGT" = "$KUBE_VERSION" ]; then
+		if [ -z "$UPGRADE_SAME_MINOR" ]; then
+			skip "$KUBE_VERSION is $TGT and upgrading the same minor version is not enabled"
+		fi
+		return 0
+	fi
 
 	verList=$((echo "$TGT"; echo "$KUBE_VERSION") | sort -r -V)
 	if [ "$(echo "$verList" | head -1)" = "$KUBE_VERSION" ]; then
@@ -39,7 +48,7 @@ waitFor() {
 			return 0
 		fi
 
-		sleep 12
+		sleep 9
 	done
 
 	false
@@ -52,7 +61,7 @@ waitForNoNodesSchedulingDisabled() {
 			if [ $? -eq 0 ]; then
 					return 0
 			fi
-			sleep 10
+			sleep 8
 	done
 
 	false
@@ -69,14 +78,36 @@ doUpgrade() {
 	esac
 }
 
+uploadArchive() {
+	NODE="$1"
+	TGT="$2"
+	TARGET="$3"
+
+	if [ -z "$TARGET" ]; then
+		return 0
+	fi
+
+	run bats_pipe echo "$OSTREE_IMAGES" \| yq ".\"$TGT\" // \"\""
+	IMAGE="$output"
+	if [ -z "$IMAGE" ]; then
+		return 0
+	fi
+
+	bats_pipe podman image save --format oci-archive "$IMAGE" \| ocne cluster console --direct --node "$NODE" -- sh -c "cat > $TARGET"
+}
+
 doNodeUpgrade() {
 	TGT="$1"
 
-	run -0 ocne cluster stage --version "$TGT"
+	# Skip stage if doing the same minor version
+	if [ "$TGT" != "$KUBE_VERSION" ]; then
+		run -0 ocne cluster stage --version "$TGT"
+	fi
 
 	run -0 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	NODES="$output"
-	NUM_NODES=$(echo -n "$NODES" | wc -l)
+	NUM_NODES=$(echo -n "$NODES" | wc -w)
+	echo "num nodes: $NUM_NODES"
 
 	run -0 kubectl get nodes -l 'node-role.kubernetes.io/control-plane' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	CP_NODES="$output"
@@ -84,15 +115,20 @@ doNodeUpgrade() {
 	run -0 kubectl get nodes -l '!node-role.kubernetes.io/control-plane' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
 	WORKER_NODES="$output"
 
+	for n in $CP_NODES $WORKER_NODES; do
+		uploadArchive "$n" "$TGT" "$OSTREE_ARCHIVE"
+	done
+
 	# Wait for updates to be available
 	for i in $(seq 1 100); do
 		run -0 kubectl get node -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.annotations}{"\n"}{end}'
 		echo "node annotations are are $output"
 
-		run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		#run -0 kubectl get node -o jsonpath='{range .items[?(@.metadata.annotations.ocne\.oracle\.com/update-available=="true")]}{.metadata.name}{"\n"}{end}'
+		ocne cluster info
+		run --separate-stderr bats_pipe ocne cluster info \| grep -e 'control plane.*v1.*true$' -e 'worker.*v1.*true$' \| tr -d ' \t'
 		UPDATES="$output"
-		NUM_UPDATES=$(echo -n "$UPDATES" | wc -l)
-		echo "updates: $UPDATES"
+		NUM_UPDATES=$(echo -n "$UPDATES" | wc -w)
 		echo "$NUM_UPDATES" = "$NUM_NODES"
 
 		if [ "$NUM_UPDATES" = "$NUM_NODES" ]; then
@@ -119,7 +155,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 11
 		done
 
 		# Sometimes the NoSchedule taint gets stuck if the kube-apiserver
@@ -144,7 +180,7 @@ doNodeUpgrade() {
 			if [ "$status" = 0 ]; then
 				break
 			fi
-			sleep 10
+			sleep 12
 		done
 	done
 
@@ -162,11 +198,11 @@ doCapiUpgrade() {
 
 	# get patches
 	echo "$STAGE_OUT"
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
 	cpPatch="$output"
 	echo "$cpPatch"
 
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
+	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
 	workerPatches="$output"
 	echo "$workerPatches"
 
@@ -237,7 +273,7 @@ doCapiUpgrade() {
 			export KUBECONFIG="$MGMT_KUBECONFIG"
 			return 0
 		fi
-		sleep 10
+		sleep 13
 	done
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 	false
@@ -335,7 +371,6 @@ stageOlvm() {
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }
-
 @test "Upgrade to 1.33" {
 	doUpgrade 1.33
 }

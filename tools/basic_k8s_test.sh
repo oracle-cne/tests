@@ -8,7 +8,7 @@ set -x
 # Allow for this script to be ran from anywhere
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REGISTRY="container-registry.oracle.com"
-NGINX_IMAGE="nginx:1.17.7-1"
+NGINX_IMAGE=$(kubectl get node -o 'jsonpath={.items[*].status.images[*].names[*]}' | tr ' ' '\n' | grep 'nginx:[0-1]' | sort -r | uniq | head -1)
 RUN_SNO=0
 UNSET_PROXY=0         # If enabled, proxy can block curl requests.  Unset if necessary, i.e. set to '1'.
 
@@ -139,89 +139,89 @@ else
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: testdns
+    name: testdns
 spec:
-  selector:
-    matchLabels:
-      name: testdns
-  template:
-    metadata:
-      labels:
-        name: testdns
-    spec:
-      containers:
-      - name: testdns
-        image: ${REGISTRY}/os/oraclelinux:8
-        command: ["sh", "-c", "sleep 1000"]
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/control-plane
+    selector:
+        matchLabels:
+            name: testdns
+    template:
+        metadata:
+            labels:
+                name: testdns
+        spec:
+            containers:
+                - name: testdns
+                  image: ${REGISTRY}/os/oraclelinux:8
+                  command: ["sh", "-c", "sleep 1000"]
+            tolerations:
+            - effect: NoSchedule
+              key: node-role.kubernetes.io/control-plane
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-conf
+    name: nginx-conf
 data:
-  default.conf: |
-    server {
-            listen       80;
-            listen       [::]:80;
-            server_name  localhost;
+    default.conf: |
+        server {
+                listen       80;
+                listen       [::]:80;
+                server_name  localhost;
 
-            location / {
-                    root   /usr/share/nginx/html;
-                    index  index.html index.htm;
-            }
+                location / {
+                        root   /usr/share/nginx/html;
+                        index  index.html index.htm;
+                }
 
-            error_page   500 502 503 504  /50x.html;
-            location = /50x.html {
-                    root   /usr/share/nginx/html;
-            }
-    }
+                error_page   500 502 503 504  /50x.html;
+                location = /50x.html {
+                        root   /usr/share/nginx/html;
+                }
+        }
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+    name: nginx
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: nginx
-  template:
-    metadata:
-      labels:
-        name: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: container-registry.oracle.com/olcne/${NGINX_IMAGE}
-        ports:
-        - containerPort: 80
-        volumeMounts:
-        - mountPath: /etc/nginx/conf.d
-          name: config
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/control-plane
-      volumes:
-      - configMap:
-          defaultMode: 420
-          name: nginx-conf
-        name: config
+    replicas: 1
+    selector:
+        matchLabels:
+            name: nginx
+    template:
+        metadata:
+            labels:
+                name: nginx
+        spec:
+            containers:
+            - name: nginx
+              image: ${NGINX_IMAGE}
+              ports:
+              - containerPort: 80
+              volumeMounts:
+              - mountPath: /etc/nginx/conf.d
+                name: config
+            tolerations:
+            - effect: NoSchedule
+              key: node-role.kubernetes.io/control-plane
+            volumes:
+            - configMap:
+                defaultMode: 420
+                name: nginx-conf
+              name: config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
-spec:
-  type: NodePort
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
-  selector:
     name: nginx
+spec:
+    type: NodePort
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+    selector:
+      name: nginx
 EOF
 		fi
 

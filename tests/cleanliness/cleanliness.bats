@@ -18,16 +18,23 @@ bats_require_minimum_version 1.5.0
 	run -0 kubectl get node -o=jsonpath='{.items[*].metadata.name}'
 	NODES="$output"
 
-	run -0 ocne cluster show -C "$CLUSTER_NAME" -f 'config.kubernetesVersion'
-	KUBE_VERSION="$output"
+	KUBE_VERSION="${TARGET_KUBE_VERSION}"
+	if [ -z "$KUBE_VERSION" ]; then
+		run -0 ocne cluster show -C "$CLUSTER_NAME" -f 'config.kubernetesVersion'
+		KUBE_VERSION="$output"
+	fi
 
 	for node in $NODES; do
 		run -0 kubectl get node $node -o=jsonpath='{.status.nodeInfo.kubeletVersion}'
 		KUBELET_VERSION="$output"
+		echo "Testing $KUBELET_VERSION against $KUBE_VERSION"
 		echo "$KUBELET_VERSION" | grep -e "^v$KUBE_VERSION\\."
 
-		run -0 kubectl get node $node -o=jsonpath='{.status.nodeInfo.kubeProxyVersion}'
-		KUBE_PROXY_VERSION="$output"
-		echo "$KUBE_PROXY_VERSION" | grep -e "^v$KUBE_VERSION\\."
+		run -0 kubectl get pods -n kube-system --field-selector spec.nodeName=${node},spec.serviceAccountName=kube-proxy -o jsonpath='{.items[].spec.containers[].image}'
+		KUBE_PROXY_IMAGE="$output"
+		run -0 bats_pipe kubectl get node $node -o jsonpath='{.status.images}' \| yq -r ".[] | select(.names | contains([\"${KUBE_PROXY_IMAGE}\"])) | .names[] | select(. != \"*sha*\" and . == \"*v${KUBE_VERSION}.*\")"
+		KUBE_PROXY_IMAGE="$output"
+		echo "Testing $KUBE_PROXY_IMAGE against $KUBE_VERSION"
+		echo "$KUBE_PROXY_IMAGE" | grep -e ":v$KUBE_VERSION\\."
 	done
 }
