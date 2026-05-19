@@ -1,0 +1,21 @@
+clusterName: <CLUSTER_NAME>
+provider: vsphere
+providers:
+  vsphere:
+    server: <VCENTER_SERVER>
+    datacenter: <VCENTER_DATACENTER>
+    network: <VCENTER_NETWORK>
+    datastore: <VCENTER_DATASTORE>
+    resourcePool: <VCENTER_RESOURCE_POOL>
+    folder: <VCENTER_FOLDER>
+    template: <VCENTER_TEMPLATE>
+    username: <VCENTER_USERNAME>
+    password: <VCENTER_PASSWORD>
+    namespace: <VCENTER_NAMESPACE>
+    controlPlaneEndpoint: <CONTROL_PLANE_ENDPOINT>
+controlPlaneNodes: 1
+workerNodes: 1
+kubernetesVersion: v1.29.0
+kubeApiServerBindPort: 6443
+podSubnet: 10.244.0.0/16
+serviceSubnet: 10.96.0.0/12
