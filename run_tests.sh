@@ -34,7 +34,7 @@ mkdir -p "$MERGED_COVERAGE_DIR"
 
 export PATH="$(pwd)/tools:$PATH"
 
-export MAX_KUBE_VERSION="1.33"
+export MAX_KUBE_VERSION="1.35"
 
 case "$FORMAT" in
 	junit ) SUFFIX=xml;;
