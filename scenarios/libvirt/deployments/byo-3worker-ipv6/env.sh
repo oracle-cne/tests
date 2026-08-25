@@ -98,14 +98,6 @@ create_domain() {
     <qemu:arg value='-fw_cfg'/>
     <qemu:arg value='name=opt/com.coreos/config,file=${IGN_VOL}'/>
   </qemu:commandline>
-  <seclabel type='dynamic' model='selinux' relabel='yes'>
-    <label>system_u:system_r:svirt_t:s0:c334,c524</label>
-    <imagelabel>system_u:object_r:svirt_image_t:s0:c334,c524</imagelabel>
-  </seclabel>
-  <seclabel type='dynamic' model='dac' relabel='yes'>
-    <label>+107:+107</label>
-    <imagelabel>+107:+107</imagelabel>
-  </seclabel>
 </domain>
 EOF
 
