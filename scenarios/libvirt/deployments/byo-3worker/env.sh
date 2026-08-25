@@ -3,8 +3,17 @@
 # Copyright (c) 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+if [ -z "$CLUSTER_CONFIG" ]; then
+	export CLUSTER_CONFIG="${SCRIPT_DIR}/clusterConfig.yaml"
+fi
+
+if [ -z "$CLUSTER_NAME" ]; then
+	export CLUSTER_NAME=$(yq '.name' "$CLUSTER_CONFIG")
+fi
+
 export POOL=images
-export VOLUME=boot.qcow2-$(yq '.kubernetesVersion' clusterConfig.yaml)
+export VOLUME=boot.qcow2-$(yq '.kubernetesVersion' "$CLUSTER_CONFIG")
 export INIT_IGN=init.ign
 export JOIN_IGN=join.ign
 
