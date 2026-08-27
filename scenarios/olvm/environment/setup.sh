@@ -93,21 +93,6 @@ if [ -z "$NAMESERVER_IP" ]; then
 	exit 1
 fi
 
-if [ -z "$OLVM_HTTPS_PROXY" ]; then
-	export OLVM_HTTPS_PROXY=""
-	echo "OLVM scenario setup: no HTTPS proxy configured"
-fi
-
-if [ -z "$OLVM_HTTP_PROXY" ]; then
-	export OLVM_HTTP_PROXY=""
-	echo "OLVM scenario setup: no HTTP proxy configured"
-fi
-
-if [ -z "$OLVM_NO_PROXY" ]; then
-	export OLVM_NO_PROXY=""
-	echo "OLVM scenario setup: no no-proxy exclusions configured"
-fi
-
 if [ -z "$OCNE_OLVM_USERNAME" ]; then
 	echo OCNE_OLVM_USERNAME is not defined
 	exit 1
