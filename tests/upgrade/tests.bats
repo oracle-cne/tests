@@ -5,6 +5,10 @@
 
 bats_require_minimum_version 1.5.0
 
+# OLVM upgrade staging needs the same authenticated image, disk, and template
+# lifecycle as initial cluster setup. The suite setup file owns that workflow.
+source "$BATS_TEST_DIRNAME/../setup/setup"
+
 doSkip() {
 	TGT="$1"
 
@@ -288,19 +292,17 @@ stageOci() {
 }
 
 stageOlvm() {
+	local staged_config
 	TGT="$1"
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 
-	case "$TGT" in
-	1.31 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_31" ;;
-	1.32 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_32" ;;
-	1.33 ) TEMPLATE="$OLVM_VM_TEMPLATE_1_33" ;;
-	*) echo "$TGT is not a valid upgrade target for OLVM"; exit 1 ;;
-	esac
-
-	echo "Update OLVM to use template $TEMPLATE"
-	yq ".providers.olvm.controlPlaneMachine.vmTemplateName = \"${TEMPLATE}\", .providers.olvm.workerMachine.vmTemplateName = \"${TEMPLATE}\"" < "$CLUSTER_CONFIG" > "$CLUSTER_CONFIG"-stage
-	run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"-stage
+	staged_config="$CLUSTER_CONFIG-stage"
+	echo "OLVM upgrade: preparing target-version configuration $staged_config"
+	cp "$CLUSTER_CONFIG" "$staged_config" || return $?
+	yq -i ".kubernetesVersion = \"${TGT}\"" "$staged_config" || return $?
+	olvm_prepare_assets "$TGT" "$staged_config" || return $?
+	echo "OLVM upgrade: staging with generated template $OLVM_TEMPLATE_NAME"
+	run -0 ocne cluster stage --version "$TGT" -c "$staged_config"
 	export STAGE_OUT="$output"
 	echo "Updated config for the OLVM cluster"
 	ocne cluster show -C $(yq -e .name $CLUSTER_CONFIG) -f "config.providers.olvm"
@@ -377,6 +379,26 @@ stageOlvm() {
 
 @test "Basic Kubernetes Tests for 1.33" {
 	doSkip 1.33
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.34" {
+	doUpgrade 1.34
+}
+
+@test "Basic Kubernetes Tests for 1.34" {
+	doSkip 1.34
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	basic_k8s_test.sh
+}
+
+@test "Upgrade to 1.35" {
+	doUpgrade 1.35
+}
+
+@test "Basic Kubernetes Tests for 1.35" {
+	doSkip 1.35
 	export KUBECONFIG="$TARGET_KUBECONFIG"
 	basic_k8s_test.sh
 }

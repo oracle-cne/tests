@@ -58,21 +58,6 @@ if [ -z "$OLVM_STORAGE_DOMAIN_NAME" ]; then
 	exit 1
 fi
 
-if [ -z "$OCNE_OCK_DISK_NAME_1_31" ]; then
-	echo OCNE_OCK_DISK_NAME_1_31 is not defined
-	exit 1
-fi
-
-if [ -z "$OCNE_OCK_DISK_NAME_1_32" ]; then
-	echo OCNE_OCK_DISK_NAME_1_32 is not defined
-	exit 1
-fi
-
-if [ -z "$OCNE_OCK_DISK_NAME_1_33" ]; then
-	echo OCNE_OCK_DISK_NAME_1_33 is not defined
-	exit 1
-fi
-
 if [ -z "$OLVM_NETWORK_NAME" ]; then
 	export OLVM_NETWORK_NAME=vlan
 	echo Defaulting OLVM_NETWORK_NAME to "vlan"
@@ -103,39 +88,24 @@ if [ -z "$OLVM_CA_CERT_PATH" ]; then
 	exit 1
 fi
 
-if [ -z "$OLVM_VM_TEMPLATE_1_31" ]; then
-	echo OLVM_VM_TEMPLATE_1_31 is not defined
-	exit 1
-fi
-
-if [ -z "$OLVM_VM_TEMPLATE_1_32" ]; then
-	echo OLVM_VM_TEMPLATE_1_32 is not defined
-	exit 1
-fi
-
-if [ -z "$OLVM_VM_TEMPLATE_1_33" ]; then
-	echo OLVM_VM_TEMPLATE_1_33 is not defined
-	exit 1
-fi
-
 if [ -z "$NAMESERVER_IP" ]; then
 	echo NAMESERVER_IP is not defined
 	exit 1
 fi
 
 if [ -z "$OLVM_HTTPS_PROXY" ]; then
-	echo OLVM_HTTPS_PROXY is not defined
-	exit 1
+	export OLVM_HTTPS_PROXY=""
+	echo "OLVM scenario setup: no HTTPS proxy configured"
 fi
 
 if [ -z "$OLVM_HTTP_PROXY" ]; then
-	echo OLVM_HTTP_PROXY is not defined
-	exit 1
+	export OLVM_HTTP_PROXY=""
+	echo "OLVM scenario setup: no HTTP proxy configured"
 fi
 
 if [ -z "$OLVM_NO_PROXY" ]; then
-	echo OLVM_NO_PROXY is not defined
-	exit 1
+	export OLVM_NO_PROXY=""
+	echo "OLVM scenario setup: no no-proxy exclusions configured"
 fi
 
 if [ -z "$OCNE_OLVM_USERNAME" ]; then

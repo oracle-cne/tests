@@ -75,9 +75,275 @@ setup_oci() {
 }
 
 setup_olvm() {
-	echo "Setup OLVM"
+	echo "OLVM setup: preparing a per-test boot disk and VM template"
+	export OLVM_ASSET_MANIFEST="$TEST_DIR_CURRENT/olvm-assets.tsv"
+	: > "$OLVM_ASSET_MANIFEST"
+	echo "OLVM setup: initialized cleanup manifest $OLVM_ASSET_MANIFEST"
+	OLVM_KUBE_VERSION=$(yq -r '.kubernetesVersion' "$CLUSTER_CONFIG")
+	if [ -z "$OLVM_KUBE_VERSION" ] || [ "$OLVM_KUBE_VERSION" = "null" ]; then
+		echo "OLVM setup: kubernetesVersion is required in $CLUSTER_CONFIG" >&2
+		return 1
+	fi
+	olvm_prepare_assets "$OLVM_KUBE_VERSION" "$CLUSTER_CONFIG" || return $?
+
 	export CAPI_RESOURCES="$TEST_DIR_CURRENT/olvm-template.yaml"
+	echo "OLVM setup: rendering Cluster API resources to $CAPI_RESOURCES"
 	ocne cluster template --provider olvm --config "$CLUSTER_CONFIG" > "$CAPI_RESOURCES"
+}
+
+olvm_prepare_assets() {
+	local kube_version="$1" asset_config="$2"
+
+	if [ -z "$kube_version" ] || [ "$kube_version" = "null" ]; then
+		echo "OLVM setup: a Kubernetes version is required to prepare OLVM assets" >&2
+		return 1
+	fi
+	if [ ! -f "$asset_config" ]; then
+		echo "OLVM setup: asset configuration $asset_config does not exist" >&2
+		return 1
+	fi
+
+	echo "OLVM setup: preparing disk and template for Kubernetes version $kube_version using $asset_config"
+	olvm_require_commands || return $?
+	export OLVM_KUBE_VERSION="$kube_version"
+	olvm_configure_connection "$asset_config" || return $?
+	olvm_create_asset_names
+	echo "OLVM setup: creating disk $OLVM_DISK_NAME and template $OLVM_TEMPLATE_NAME"
+	yq -i '
+		.providers.olvm.olvmOCK.diskName = strenv(OLVM_DISK_NAME) |
+		.providers.olvm.controlPlaneMachine.vmTemplateName = strenv(OLVM_TEMPLATE_NAME) |
+		.providers.olvm.workerMachine.vmTemplateName = strenv(OLVM_TEMPLATE_NAME)
+	' "$asset_config"
+
+	export OLVM_IMAGE_PATH="$HOME/.ocne/images/boot.qcow2-$OLVM_KUBE_VERSION-amd64.olvm"
+	echo "OLVM setup: creating boot image at $OLVM_IMAGE_PATH"
+	ocne image create --type olvm --arch amd64 --config "$asset_config" --kubeconfig "$MGMT_KUBECONFIG"
+	if [ ! -s "$OLVM_IMAGE_PATH" ]; then
+		echo "OLVM setup: image creation did not produce $OLVM_IMAGE_PATH" >&2
+		return 1
+	fi
+	echo "OLVM setup: uploading boot image to OLVM disk $OLVM_DISK_NAME"
+	ocne image upload --type olvm --arch amd64 --config "$asset_config" --file "$OLVM_IMAGE_PATH" --kubeconfig "$MGMT_KUBECONFIG"
+
+	olvm_authenticate
+	export OLVM_DISK_ID=$(olvm_get_disk_id)
+	if [ -z "$OLVM_DISK_ID" ]; then
+		echo "OLVM setup: could not find uploaded disk $OLVM_DISK_NAME" >&2
+		return 1
+	fi
+	echo "OLVM setup: uploaded disk ID is $OLVM_DISK_ID"
+	olvm_create_template || return $?
+	olvm_record_asset
+}
+
+olvm_configure_connection() {
+	local asset_config="$1"
+
+	export OLVM_API_URL=$(yq -r '.providers.olvm.olvmOvirtAPIServer.serverURL' "$asset_config")
+	export OLVM_OVIRT_CLUSTER=$(yq -r '.providers.olvm.controlPlaneMachine.olvmOvirtClusterName' "$asset_config")
+	export OLVM_INSECURE_SKIP_TLS_VERIFY=$(yq -r '.providers.olvm.olvmOvirtAPIServer.insecureSkipTLSVerify' "$asset_config")
+	export OLVM_SERVER_CA=$(yq -r '.providers.olvm.olvmOvirtAPIServer.serverCA' "$asset_config")
+	export OLVM_CA_PATH=$(yq -r '.providers.olvm.olvmOvirtAPIServer.serverCAPath' "$asset_config")
+	if [ -z "$OLVM_API_URL" ] || [ "$OLVM_API_URL" = "null" ] || [ -z "$OLVM_OVIRT_CLUSTER" ] || [ "$OLVM_OVIRT_CLUSTER" = "null" ]; then
+		echo "OLVM setup: server URL and oVirt cluster name are required in $asset_config" >&2
+		return 1
+	fi
+	olvm_configure_tls
+}
+
+olvm_record_asset() {
+	export OLVM_ASSET_MANIFEST="$TEST_DIR_CURRENT/olvm-assets.tsv"
+	printf '%s\t%s\t%s\t%s\n' "$OLVM_TEMPLATE_ID" "$OLVM_TEMPLATE_NAME" "$OLVM_DISK_ID" "$OLVM_DISK_NAME" >> "$OLVM_ASSET_MANIFEST"
+	echo "OLVM setup: recorded cleanup data for template $OLVM_TEMPLATE_NAME and disk $OLVM_DISK_NAME"
+}
+
+olvm_require_commands() {
+	local command_name
+	for command_name in curl ocne yq; do
+		if ! command -v "$command_name" >/dev/null 2>&1; then
+			echo "OLVM setup: required command $command_name is not available" >&2
+			return 1
+		fi
+	done
+	if [ -z "$OCNE_OLVM_USERNAME" ] || [ -z "$OCNE_OLVM_PASSWORD" ] || [ -z "$OCNE_OLVM_SCOPE" ]; then
+		echo "OLVM setup: OCNE_OLVM_USERNAME, OCNE_OLVM_PASSWORD, and OCNE_OLVM_SCOPE are required" >&2
+		return 1
+	fi
+}
+
+olvm_configure_tls() {
+	local ca_file trimmed_ca_file
+	local -a ca_files
+
+	# The OLVM provider uses a custom Go transport with no proxy configured.
+	# Match that connection path so an ambient HTTPS proxy cannot replace the
+	# engine certificate chain with the proxy's certificate chain.
+	OLVM_CURL_PROXY_ARGS=(--noproxy '*')
+	echo "OLVM setup: bypassing ambient proxies to match the OLVM provider transport" >&2
+
+	if [ "$OLVM_INSECURE_SKIP_TLS_VERIFY" = "true" ]; then
+		echo "OLVM setup: TLS verification is disabled for OLVM API requests" >&2
+		OLVM_CURL_TLS_ARGS=(--insecure)
+		return 0
+	fi
+
+	if [ "$OLVM_SERVER_CA" != "null" ] && [ -n "$OLVM_SERVER_CA" ] && [ "$OLVM_CA_PATH" != "null" ] && [ -n "$OLVM_CA_PATH" ]; then
+		echo "OLVM setup: serverCA and serverCAPath cannot both be configured" >&2
+		return 1
+	fi
+
+	if [ "$OLVM_SERVER_CA" = "null" ] || [ -z "$OLVM_SERVER_CA" ]; then
+		OLVM_SERVER_CA=""
+	fi
+	if [ "$OLVM_CA_PATH" = "null" ] || [ -z "$OLVM_CA_PATH" ]; then
+		OLVM_CA_PATH=""
+	fi
+
+	if [ -z "$OLVM_SERVER_CA" ] && [ -z "$OLVM_CA_PATH" ]; then
+		echo "OLVM setup: no OLVM CA is configured; using the system trust store" >&2
+		OLVM_CURL_TLS_ARGS=()
+		return 0
+	fi
+
+	export OLVM_CA_CHAIN_PATH=$(mktemp "$TEST_DIR_CURRENT/olvm-ca-chain.XXXXXX") || {
+		echo "OLVM setup: could not create a CA-chain file" >&2
+		return 1
+	}
+
+	if [ -n "$OLVM_SERVER_CA" ]; then
+		echo "OLVM setup: building the OLVM CA chain from inline serverCA" >&2
+		printf '%s\n' "$OLVM_SERVER_CA" > "$OLVM_CA_CHAIN_PATH"
+	else
+		IFS=',' read -r -a ca_files <<< "$OLVM_CA_PATH"
+		echo "OLVM setup: building the OLVM CA chain from ${#ca_files[@]} serverCAPath file(s)" >&2
+		for ca_file in "${ca_files[@]}"; do
+			trimmed_ca_file=$(printf '%s' "$ca_file" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+			if [ ! -r "$trimmed_ca_file" ]; then
+				echo "OLVM setup: readable server CA path is required when TLS verification is enabled: $trimmed_ca_file" >&2
+				return 1
+			fi
+			cat "$trimmed_ca_file" >> "$OLVM_CA_CHAIN_PATH"
+			printf '\n' >> "$OLVM_CA_CHAIN_PATH"
+		done
+	fi
+
+	echo "OLVM setup: using the provider-equivalent OLVM CA chain for API requests" >&2
+	OLVM_CURL_TLS_ARGS=(--cacert "$OLVM_CA_CHAIN_PATH")
+}
+
+olvm_create_asset_names() {
+	local raw_name safe_name
+	raw_name="${CASE_NAME:-olvm}-${OLVM_KUBE_VERSION}-${BUILD_TAG:-local}-$(date +%s)-$$"
+	safe_name=$(printf '%s' "$raw_name" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')
+	safe_name=${safe_name#-}
+	safe_name=${safe_name%-}
+	safe_name=$(printf '%s' "$safe_name" | cut -c1-80)
+	export OLVM_DISK_NAME="${safe_name}-disk"
+	export OLVM_TEMPLATE_NAME="${safe_name}-template"
+	export OLVM_TEMP_VM_NAME="${safe_name}-source"
+}
+
+olvm_authenticate() {
+	local token_response xtrace_state curl_status
+	echo "OLVM setup: requesting an OLVM API access token" >&2
+	xtrace_state=$(set +o | grep xtrace)
+	set +x
+	if token_response=$(curl "${OLVM_CURL_PROXY_ARGS[@]}" "${OLVM_CURL_TLS_ARGS[@]}" --silent --show-error --fail --request POST "$OLVM_API_URL/sso/oauth/token" --header 'Accept: application/json' --data-urlencode "username=$OCNE_OLVM_USERNAME" --data-urlencode "password=$OCNE_OLVM_PASSWORD" --data-urlencode "scope=$OCNE_OLVM_SCOPE" --data-urlencode 'grant_type=password'); then
+		curl_status=0
+	else
+		curl_status=$?
+	fi
+	eval "$xtrace_state"
+	if [ "$curl_status" -ne 0 ]; then
+		echo "OLVM setup: OLVM API authentication failed" >&2
+		return "$curl_status"
+	fi
+	export OLVM_ACCESS_TOKEN=$(printf '%s' "$token_response" | yq -r '.access_token')
+	if [ -z "$OLVM_ACCESS_TOKEN" ] || [ "$OLVM_ACCESS_TOKEN" = "null" ]; then
+		echo "OLVM setup: OLVM API token response did not contain access_token" >&2
+		return 1
+	fi
+	echo "OLVM setup: OLVM API authentication completed" >&2
+}
+
+olvm_api_request() {
+	local method=$1 path=$2 payload=${3:-} response xtrace_state curl_status
+	echo "OLVM setup: OLVM API $method $path" >&2
+	xtrace_state=$(set +o | grep xtrace)
+	set +x
+	if [ -n "$payload" ]; then
+		if response=$(curl "${OLVM_CURL_PROXY_ARGS[@]}" "${OLVM_CURL_TLS_ARGS[@]}" --silent --show-error --fail --request "$method" "$OLVM_API_URL$path" --header 'Accept: application/json' --header 'Content-Type: application/json' --header "Authorization: Bearer $OLVM_ACCESS_TOKEN" --data "$payload"); then
+			curl_status=0
+		else
+			curl_status=$?
+		fi
+	else
+		if response=$(curl "${OLVM_CURL_PROXY_ARGS[@]}" "${OLVM_CURL_TLS_ARGS[@]}" --silent --show-error --fail --request "$method" "$OLVM_API_URL$path" --header 'Accept: application/json' --header "Authorization: Bearer $OLVM_ACCESS_TOKEN"); then
+			curl_status=0
+		else
+			curl_status=$?
+		fi
+	fi
+	eval "$xtrace_state"
+	if [ "$curl_status" -ne 0 ]; then
+		echo "OLVM setup: OLVM API request failed: $method $path" >&2
+		return "$curl_status"
+	fi
+	printf '%s' "$response"
+}
+
+olvm_get_disk_id() {
+	local disks
+	disks=$(olvm_api_request GET "/api/disks?search=name%3D$OLVM_DISK_NAME") || return $?
+	printf '%s' "$disks" | yq -r '.disk[] | select(.name == strenv(OLVM_DISK_NAME)) | .id' | head -1
+}
+
+olvm_create_template() {
+	local vm_payload attachment_payload template_payload vm_response attachment_response template_response
+	vm_payload=$(yq -n -o=json '.name = strenv(OLVM_TEMP_VM_NAME) | .cluster.name = strenv(OLVM_OVIRT_CLUSTER) | .template.name = "Blank" | .os.type = "ol_cos"')
+	echo "OLVM setup: creating stopped source VM $OLVM_TEMP_VM_NAME" >&2
+	vm_response=$(olvm_api_request POST '/api/vms' "$vm_payload") || return $?
+	export OLVM_TEMP_VM_ID=$(printf '%s' "$vm_response" | yq -r '.id')
+	if [ -z "$OLVM_TEMP_VM_ID" ] || [ "$OLVM_TEMP_VM_ID" = "null" ]; then
+		echo "OLVM setup: VM creation response did not contain an ID" >&2
+		return 1
+	fi
+	attachment_payload=$(yq -n -o=json '.bootable = true | .active = true | .interface = "virtio" | .disk.id = strenv(OLVM_DISK_ID)')
+	echo "OLVM setup: attaching uploaded disk to source VM $OLVM_TEMP_VM_ID" >&2
+	attachment_response=$(olvm_api_request POST "/api/vms/$OLVM_TEMP_VM_ID/diskattachments" "$attachment_payload") || return $?
+	if [ -z "$attachment_response" ]; then
+		echo "OLVM setup: disk attachment returned no response" >&2
+		return 1
+	fi
+	template_payload=$(yq -n -o=json '.name = strenv(OLVM_TEMPLATE_NAME) | .vm.id = strenv(OLVM_TEMP_VM_ID)')
+	echo "OLVM setup: creating VM template $OLVM_TEMPLATE_NAME" >&2
+	template_response=$(olvm_api_request POST '/api/templates' "$template_payload") || return $?
+	export OLVM_TEMPLATE_ID=$(printf '%s' "$template_response" | yq -r '.id')
+	if [ -z "$OLVM_TEMPLATE_ID" ] || [ "$OLVM_TEMPLATE_ID" = "null" ]; then
+		echo "OLVM setup: template creation response did not contain an ID" >&2
+		return 1
+	fi
+	olvm_wait_for_template
+	echo "OLVM setup: deleting temporary source VM $OLVM_TEMP_VM_ID" >&2
+	olvm_api_request DELETE "/api/vms/$OLVM_TEMP_VM_ID" >/dev/null
+}
+
+olvm_wait_for_template() {
+	local attempt=0 template_response template_status
+	echo "OLVM setup: waiting for VM template $OLVM_TEMPLATE_ID to become ready" >&2
+	while [ "$attempt" -lt 120 ]; do
+		template_response=$(olvm_api_request GET "/api/templates/$OLVM_TEMPLATE_ID") || return $?
+		template_status=$(printf '%s' "$template_response" | yq -r '.status')
+		if [ "$template_status" = "ok" ]; then
+			echo "OLVM setup: VM template $OLVM_TEMPLATE_NAME is ready" >&2
+			return 0
+		fi
+		echo "OLVM setup: template status is $template_status; waiting (attempt $((attempt + 1))/120)" >&2
+		sleep 5
+		attempt=$((attempt + 1))
+	done
+	echo "OLVM setup: timed out waiting for VM template $OLVM_TEMPLATE_NAME" >&2
+	return 1
 }
 
 teardown_oci() {
@@ -99,7 +365,45 @@ teardown_oci() {
 }
 
 teardown_olvm() {
-	echo "Teardown OLVM"
+	local template_id template_name disk_id disk_name
+
+	export OLVM_ASSET_MANIFEST="$TEST_DIR_CURRENT/olvm-assets.tsv"
+	if [ ! -s "$OLVM_ASSET_MANIFEST" ]; then
+		echo "OLVM teardown: no complete OLVM asset sets were created"
+		return 0
+	fi
+	olvm_authenticate
+	while IFS=$'\t' read -r template_id template_name disk_id disk_name; do
+		[ -n "$template_id" ] && [ -n "$disk_id" ] || continue
+		export OLVM_TEMPLATE_ID="$template_id"
+		export OLVM_TEMPLATE_NAME="$template_name"
+		export OLVM_DISK_ID="$disk_id"
+		export OLVM_DISK_NAME="$disk_name"
+		echo "OLVM teardown: deleting template $OLVM_TEMPLATE_ID"
+		olvm_api_request DELETE "/api/templates/$OLVM_TEMPLATE_ID" >/dev/null
+		olvm_wait_for_template_deletion || return $?
+		echo "OLVM teardown: deleting disk $OLVM_DISK_ID"
+		olvm_api_request DELETE "/api/disks/$OLVM_DISK_ID" >/dev/null
+	done < "$OLVM_ASSET_MANIFEST"
+	echo "OLVM teardown: completed"
+}
+
+olvm_wait_for_template_deletion() {
+	local attempt=0 templates remaining_template_id
+	echo "OLVM teardown: waiting for template $OLVM_TEMPLATE_NAME to be removed" >&2
+	while [ "$attempt" -lt 120 ]; do
+		templates=$(olvm_api_request GET "/api/templates?search=name%3D$OLVM_TEMPLATE_NAME") || return $?
+		remaining_template_id=$(printf '%s' "$templates" | yq -r '.template[] | select(.name == strenv(OLVM_TEMPLATE_NAME)) | .id' | head -1)
+		if [ -z "$remaining_template_id" ]; then
+			echo "OLVM teardown: template $OLVM_TEMPLATE_NAME has been removed" >&2
+			return 0
+		fi
+		echo "OLVM teardown: template removal is pending (attempt $((attempt + 1))/120)" >&2
+		sleep 5
+		attempt=$((attempt + 1))
+	done
+	echo "OLVM teardown: timed out waiting for template $OLVM_TEMPLATE_NAME to be removed" >&2
+	return 1
 }
 
 
