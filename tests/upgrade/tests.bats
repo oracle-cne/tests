@@ -48,7 +48,10 @@ waitFor() {
 		run -0 yq '.status.updatedReplicas' <(echo "$YAML")
 		UPDATED_REPLICAS="$output"
 
-		if [ "$REPLICAS" = "$READY_REPLICAS" ] && [ "$REPLICAS" = "$UPDATED_REPLICAS" ]; then
+		run -0 yq '.status.upToDateReplicas' <(echo "$YAML")
+		UP_TO_DATE_REPLICAS="$output"
+
+		if [ "$REPLICAS" = "$READY_REPLICAS" ] && { [ "$REPLICAS" = "$UPDATED_REPLICAS" ] || [ "$REPLICAS" = "$UP_TO_DATE_REPLICAS" ]; }; then
 			return 0
 		fi
 
