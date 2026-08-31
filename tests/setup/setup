@@ -442,11 +442,41 @@ setup_noncapi() {
 	export CAPI_MODE="false"
 }
 
+resolve_kubernetes_version() {
+	unset KUBE_VERSION
+	echo "Kubernetes version resolution: checking $CLUSTER_CONFIG"
+	run -0 yq -r '.kubernetesVersion // ""' "$CLUSTER_CONFIG"
+	if [ "$status" -ne 0 ]; then
+		echo "Kubernetes version resolution: could not read $CLUSTER_CONFIG" >&2
+		return "$status"
+	fi
+	if [ -n "$output" ]; then
+		export KUBE_VERSION="$output"
+		echo "Kubernetes version resolution: using kubernetesVersion from $CLUSTER_CONFIG: $KUBE_VERSION"
+		return 0
+	fi
+
+	echo "Kubernetes version resolution: kubernetesVersion is not defined in $CLUSTER_CONFIG; checking $INFO"
+	run -0 yq -r '.version // ""' "$INFO"
+	if [ "$status" -ne 0 ]; then
+		echo "Kubernetes version resolution: could not read $INFO" >&2
+		return "$status"
+	fi
+	if [ -n "$output" ]; then
+		export KUBE_VERSION="$output"
+		echo "Kubernetes version resolution: using version from $INFO: $KUBE_VERSION"
+	else
+		echo "Kubernetes version resolution: no version is defined; the started cluster will provide the version"
+	fi
+}
+
 setup_suite() {
 	run yq .skip "$INFO"
 	if [ "$output" = "true" ]; then
 		skip "Test explicitly skipped"
 	fi
+
+	resolve_kubernetes_version || return $?
 
 	run -0 yq -e .provider "$INFO"
 	export PROVIDER="$output"
@@ -468,8 +498,11 @@ setup_suite() {
 	export KUBECONFIG="$output"
 	export TARGET_KUBECONFIG="$KUBECONFIG"
 
-	run -0 ocne cluster show -C "$CLUSTER_NAME" -f config.kubernetesVersion
-	export KUBE_VERSION="$output"
+	if [ -z "$KUBE_VERSION" ]; then
+		echo "Kubernetes version resolution: reading the version from started cluster $CLUSTER_NAME"
+		run -0 ocne cluster show -C "$CLUSTER_NAME" -f config.kubernetesVersion
+		export KUBE_VERSION="$output"
+	fi
 	[ -n "$KUBE_VERSION" ]
 
 	export BATS_TEST_NAME_PREFIX="${BATS_TEST_NAME_PREFIX}${PROVIDER} ${KUBE_VERSION}: "

@@ -205,11 +205,11 @@ doCapiUpgrade() {
 
 	# get patches
 	echo "$STAGE_OUT"
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *'
+	run -0 grep -e 'kubectl patch -n [a-zA-Z0-9-]* kubeadmcontrolplane *' <(printf '%s\n' "$STAGE_OUT")
 	cpPatch="$output"
 	echo "$cpPatch"
 
-	run -0 bats_pipe echo "$STAGE_OUT" \| grep -e 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *'
+	run -0 grep -e 'kubectl patch -n [a-zA-Z0-9-]* machinedeployment *' <(printf '%s\n' "$STAGE_OUT")
 	workerPatches="$output"
 	echo "$workerPatches"
 
