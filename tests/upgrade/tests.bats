@@ -74,15 +74,30 @@ waitForNoNodesSchedulingDisabled() {
 	false
 }
 
+waitForAllPodsRunningAndReady() {
+	echo "Waiting for all pods to reach Running phase after the upgrade"
+	run -0 kubectl wait --for=jsonpath='{.status.phase}'=Running pods --all --all-namespaces --timeout=900s
+
+	echo "Waiting for all running pods to become Ready after the upgrade"
+	run -0 kubectl wait --for=condition=Ready pods --all --all-namespaces --timeout=900s
+
+	echo "All pods are Running and Ready after the upgrade"
+}
+
 doUpgrade() {
 	TGT="$1"
 	doSkip "$TGT"
+
+	echo "Upgrading $KUBE_VERSION to $TGT"
 
 	case "$UPDATE_MODE" in
 	capi ) doCapiUpgrade "$TGT" ;;
 	node ) doNodeUpgrade "$TGT" ;;
 	*) false ;;
-	esac
+	esac || return $?
+
+	export KUBECONFIG="$TARGET_KUBECONFIG"
+	waitForAllPodsRunningAndReady
 }
 
 uploadArchive() {
@@ -108,6 +123,7 @@ doNodeUpgrade() {
 
 	# Skip stage if doing the same minor version
 	if [ "$TGT" != "$KUBE_VERSION" ]; then
+		echo ocne cluster stage --version "$TGT"
 		run -0 ocne cluster stage --version "$TGT"
 	fi
 

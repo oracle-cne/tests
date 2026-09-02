@@ -442,6 +442,54 @@ setup_noncapi() {
 	export CAPI_MODE="false"
 }
 
+wait_for_libvirt_nodes() {
+	local expected_nodes node_list observed_nodes deadline remaining
+
+	echo "Libvirt node readiness: determining the expected node count from $CLUSTER_CONFIG"
+	run -0 yq -r '(.controlPlaneNodes // 1) + (.workerNodes // 1)' "$CLUSTER_CONFIG"
+	expected_nodes="$output"
+	case "$expected_nodes" in
+		'' | *[!0-9]* | 0 )
+			echo "Libvirt node readiness: expected node count must be a positive integer, got: $expected_nodes" >&2
+			return 1
+			;;
+	esac
+
+	echo "Libvirt node readiness: waiting up to 900 seconds for $expected_nodes node(s) to register"
+	deadline=$((SECONDS + 900))
+	while true; do
+		if node_list=$(kubectl get nodes --no-headers 2>&1); then
+			observed_nodes=$(printf '%s\n' "$node_list" | awk 'NF { count++ } END { print count + 0 }')
+			echo "Libvirt node readiness: observed $observed_nodes of $expected_nodes expected node(s)"
+			if [ "$observed_nodes" -eq "$expected_nodes" ]; then
+				break
+			fi
+			if [ "$observed_nodes" -gt "$expected_nodes" ]; then
+				echo "Libvirt node readiness: observed more nodes than the cluster configuration allows" >&2
+				return 1
+			fi
+		else
+			echo "Libvirt node readiness: cluster API is not ready to list nodes: $node_list"
+		fi
+
+		remaining=$((deadline - SECONDS))
+		if [ "$remaining" -le 0 ]; then
+			echo "Libvirt node readiness: timed out waiting for $expected_nodes node(s) to register" >&2
+			return 1
+		fi
+		sleep 5
+	done
+
+	remaining=$((deadline - SECONDS))
+	if [ "$remaining" -le 0 ]; then
+		echo "Libvirt node readiness: timed out before all nodes became Ready" >&2
+		return 1
+	fi
+	echo "Libvirt node readiness: all $expected_nodes node(s) are registered; waiting for every node to become Ready"
+	kubectl wait --for=condition=Ready nodes --all --timeout="${remaining}s"
+	echo "Libvirt node readiness: every expected node is registered and Ready"
+}
+
 resolve_kubernetes_version() {
 	unset KUBE_VERSION
 	echo "Kubernetes version resolution: checking $CLUSTER_CONFIG"
@@ -507,7 +555,11 @@ setup_suite() {
 
 	export BATS_TEST_NAME_PREFIX="${BATS_TEST_NAME_PREFIX}${PROVIDER} ${KUBE_VERSION}: "
 
-	# The wait begins before a worker node is ready, which is needed to schedule the coredns pod.
+	if [ "$PROVIDER" = "libvirt" ]; then
+		wait_for_libvirt_nodes
+	fi
+
+	# Non-libvirt providers begin this wait before a worker is ready, which is needed to schedule coredns.
 	kubectl wait deployment -n kube-system coredns --for condition=Available=True --timeout=900s
 	kubectl wait deployment -n ocne-system ocne-catalog --for condition=Available=True --timeout=600s
 }

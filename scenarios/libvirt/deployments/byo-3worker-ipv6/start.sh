@@ -24,6 +24,11 @@ EOF
 	yq ".extraIgnition = \"${NAME}.but\"" < "$CLUSTER_CONFIG" > "${NAME}.cc.yaml"
 	ocne cluster "$MODE" -c "${NAME}.cc.yaml" > "${NAME}.ign"
 	create_domain "$NAME" "${NAME}.ign"
+	if [ "$MODE" = "join" ]; then
+		echo "Waiting for newly created node ${NAME} to register in the cluster"
+		kubectl wait --for=create "node/${NAME}" --timeout=900s
+		echo "Newly created node ${NAME} is registered in the cluster"
+	fi
 }
 
 # Generate the intial ignition
