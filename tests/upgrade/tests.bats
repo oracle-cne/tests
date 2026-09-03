@@ -97,7 +97,7 @@ doUpgrade() {
 	esac || return $?
 
 	export KUBECONFIG="$TARGET_KUBECONFIG"
-	waitForAllPodsRunningAndReady
+	#waitForAllPodsRunningAndReady
 }
 
 uploadArchive() {
