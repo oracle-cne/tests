@@ -307,7 +307,10 @@ stageOci() {
 	export KUBECONFIG="$MGMT_KUBECONFIG"
 
 	run -0 ocne cluster stage --version "$TGT" -c "$CLUSTER_CONFIG"
-	export STAGE_OUT="$output"
+	# Keep staging output in the current shell only.  Exporting the full command
+	# output makes every subsequent child process inherit it and can exceed
+	# execve(2)'s argument-and-environment size limit.
+	STAGE_OUT="$output"
 }
 
 stageOlvm() {
@@ -322,7 +325,9 @@ stageOlvm() {
 	olvm_prepare_assets "$TGT" "$staged_config" || return $?
 	echo "OLVM upgrade: staging with generated template $OLVM_TEMPLATE_NAME"
 	run -0 ocne cluster stage --version "$TGT" -c "$staged_config"
-	export STAGE_OUT="$output"
+	# See stageOci: this output is consumed by doCapiUpgrade and must not be
+	# added to the environment inherited by later commands.
+	STAGE_OUT="$output"
 	echo "Updated config for the OLVM cluster"
 	ocne cluster show -C $(yq -e .name $CLUSTER_CONFIG) -f "config.providers.olvm"
 }
